@@ -3,7 +3,7 @@ import 'package:blockchain_utils/utils/string/string.dart';
 import 'package:on_chain/ethereum/src/eip_4361/exception/exception.dart';
 
 /// This class performs basic validation for EIP-4631 but does not fully validate all aspects
-/// of the specification. Its main purpose is to generate sign-in messages for Aptos, Solana,
+/// of the specification. Its main purpose is to generate sign-in messages for Solana
 /// and Ethereum, ensuring the structure is consistent for these blockchains.
 class EIP4631 {
   final String domain;

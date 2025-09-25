@@ -1,9 +1,9 @@
 ## 7.0.0
-- Added support for the Cardano Conway era  
+- Added support for the Cardano Conway era
 - Added support for deserializing Cardano models with different CBOR encodings
 - Added support for TIP-712
 - Update dependencies.
-**Note:**  
+**Note:**
 Several model structures have been updated. Please review the changes before upgrading to this version.
 
 ## 6.9.0

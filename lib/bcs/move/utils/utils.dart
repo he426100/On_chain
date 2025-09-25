@@ -1,6 +1,4 @@
-import 'package:blockchain_utils/bip/address/aptos_addr.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain/aptos/aptos.dart';
 import 'package:on_chain/bcs/exeption/exeption.dart';
 
 class MoveUtils {
@@ -127,13 +125,17 @@ class MoveUtils {
   static List<int> parseAddressBytes({Object? value}) {
     try {
       if (value is String) {
-        return AptosAddressUtils.addressToBytes(value);
-      } else if (value is List) {
-        return AptosAddressUtils.praseAddressBytes(value.cast());
+        final bytes = BytesUtils.tryFromHexString(value);
+        if (bytes != null && bytes.length == 32) {
+          return bytes;
+        }
+        throw Exception('Invalid address length');
+      } else if (value is List && value.length == 32) {
+        return value.cast<int>().asImmutableBytes;
       }
     } catch (_) {}
     throw BcsSerializationException(
-        "Invalid value for move type 'Address': Expected a List<int> or a hexadecimal string.",
+        "Invalid value for move type 'Address': Expected a 32-byte List<int> or a 64-character hexadecimal string.",
         details: {"value": "$value"});
   }
 }

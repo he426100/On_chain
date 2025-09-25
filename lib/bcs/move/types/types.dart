@@ -1,56 +1,8 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:on_chain/aptos/src/helper/helper.dart';
 import 'package:on_chain/bcs/exeption/exeption.dart';
 import 'package:on_chain/bcs/move/utils/utils.dart';
 import 'package:on_chain/bcs/serialization/serialization.dart';
 import 'package:on_chain/utils/utils/map_utils.dart';
-
-/// Enum representing different Move argument types with associated values.
-enum MoveArgumentType {
-  /// Represents a 8-bit unsigned integer
-  u8(value: 0),
-
-  /// Represents a 64-bit unsigned integer
-  u64(value: 1),
-
-  /// Represents a 128-bit unsigned integer
-  u128(value: 2),
-
-  /// Represents an address type
-  address(value: 3),
-
-  /// Represents a boolean type
-  boolean(value: 5),
-
-  /// Represents a 16-bit unsigned integer
-  u16(value: 6),
-
-  /// Represents a 32-bit unsigned integer
-  u32(value: 7),
-
-  /// Represents a 256-bit unsigned integer
-  u256(value: 8),
-
-  /// Represents a vector of u8 values
-  u8Vector(value: 4),
-
-  /// Represents a serialized type
-  serialized(value: 9);
-
-  /// The corresponding value for the argument type
-  final int value;
-  const MoveArgumentType({required this.value});
-
-  /// Converts a string name to the corresponding [MoveArgumentType].
-  static MoveArgumentType fromName(String? name) {
-    return values.firstWhere((e) => e.name == name,
-        orElse: () => throw BcsSerializationException(
-                "cannot find correct transaction argument from the given name.",
-                details: {
-                  "name": name
-                })); // Throws an exception if no match is found
-  }
-}
 
 /// Abstract base class for Move types, extends [BcsSerialization].
 /// This class holds a value of type [T] and provides layout structure serialization.
@@ -65,117 +17,10 @@ abstract class MoveType<T> extends BcsSerialization {
   }
 }
 
-/// Abstract class for representing Aptos Entry Function arguments.
-/// Inherits from [MoveType] with the generic type [T].
-abstract class AptosEntryFunctionArguments<T> extends MoveType<T> {
-  const AptosEntryFunctionArguments(super.value);
-}
-
-
-/// Abstract class for representing Aptos Script arguments.
-/// Inherits from [MoveType] with the generic type [T].
-/// Contains a method to convert to [MoveArgument].
-abstract class AptosScriptArguments<T> extends MoveType<T> {
-  const AptosScriptArguments(super.value);
-
-  /// Converts the script arguments into a [MoveArgument].
-  MoveArgument asMoveArgument();
-}
-
-abstract class MoveArgument<T> extends BcsVariantSerialization
-    implements
-        AptosEntryFunctionArguments<T>,
-        AptosScriptArguments<T> {
-  final MoveArgumentType argumentType;
-  const MoveArgument({required this.argumentType});
-  static Layout<Map<String, dynamic>> layout({String? property}) {
-    return LayoutConst.bcsLazyEnum([
-      LazyVariantModel(
-          layout: MoveU8.layout,
-          property: MoveArgumentType.u8.name,
-          index: MoveArgumentType.u8.value),
-      LazyVariantModel(
-          layout: MoveU16.layout,
-          property: MoveArgumentType.u16.name,
-          index: MoveArgumentType.u16.value),
-      LazyVariantModel(
-          layout: MoveU32.layout,
-          property: MoveArgumentType.u32.name,
-          index: MoveArgumentType.u32.value),
-      LazyVariantModel(
-          layout: MoveU64.layout,
-          property: MoveArgumentType.u64.name,
-          index: MoveArgumentType.u64.value),
-      LazyVariantModel(
-          layout: MoveU128.layout,
-          property: MoveArgumentType.u128.name,
-          index: MoveArgumentType.u128.value),
-      LazyVariantModel(
-          layout: MoveU256.layout,
-          property: MoveArgumentType.u256.name,
-          index: MoveArgumentType.u256.value),
-      LazyVariantModel(
-          layout: MoveBool.layout,
-          property: MoveArgumentType.boolean.name,
-          index: MoveArgumentType.boolean.value),
-      LazyVariantModel(
-          layout: MoveAddress.layout,
-          property: MoveArgumentType.address.name,
-          index: MoveArgumentType.address.value),
-      LazyVariantModel(
-          layout: MoveU8Vector.layout,
-          property: MoveArgumentType.u8Vector.name,
-          index: MoveArgumentType.u8Vector.value),
-      LazyVariantModel(
-          layout: MoveSerialized.layout,
-          property: MoveArgumentType.serialized.name,
-          index: MoveArgumentType.serialized.value),
-    ], property: property);
-  }
-
-  factory MoveArgument.fromStruct(Map<String, dynamic> json) {
-    final decode = BcsVariantSerialization.toVariantDecodeResult(json);
-    final type = MoveArgumentType.fromName(decode.variantName);
-    final arg = switch (type) {
-      MoveArgumentType.u8 => MoveU8.fromStruct(decode.value),
-      MoveArgumentType.u16 => MoveU16.fromStruct(decode.value),
-      MoveArgumentType.u32 => MoveU32.fromStruct(decode.value),
-      MoveArgumentType.u64 => MoveU64.fromStruct(decode.value),
-      MoveArgumentType.u128 => MoveU128.fromStruct(decode.value),
-      MoveArgumentType.u256 => MoveU256.fromStruct(decode.value),
-      MoveArgumentType.address => MoveAddress.fromStruct(decode.value),
-      MoveArgumentType.boolean => MoveBool.fromStruct(decode.value),
-      MoveArgumentType.u8Vector => MoveU8Vector.fromStruct(decode.value),
-      MoveArgumentType.serialized => MoveSerialized.fromStruct(decode.value),
-    };
-    if (arg is! MoveArgument<T>) {
-      throw BcsSerializationException(
-          "Invalid argument. expected: $T, got: ${arg.runtimeType}");
-    }
-    return arg;
-  }
-
-  @override
-  Layout<Map<String, dynamic>> createVariantLayout({String? property}) {
-    return layout(property: property);
-  }
-
-  @override
-  String get variantName => argumentType.name;
-  @override
-  MoveArgument asMoveArgument() {
-    return this;
-  }
-}
-
 /// Represents a Move `u8` argument type (8-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU8 extends MoveArgument<int> {
-  @override
-  final int value;
-  MoveU8(int value)
-      : value = MoveUtils.parseU8(value: value),
-        super(argumentType: MoveArgumentType.u8);
+class MoveU8 extends MoveType<int> {
+  MoveU8(int value) : super(MoveUtils.parseU8(value: value));
 
   /// Parses an object to MoveU8, supporting int, BigInt, Int as String, and hexDecimal integer formats.
   factory MoveU8.parse(Object? object) {
@@ -196,11 +41,6 @@ class MoveU8 extends MoveArgument<int> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU8) return false;
@@ -213,12 +53,8 @@ class MoveU8 extends MoveArgument<int> {
 
 /// Represents a Move `u16` argument type (16-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU16 extends MoveArgument<int> {
-  @override
-  final int value;
-  MoveU16(int value)
-      : value = MoveUtils.parseU16(value: value),
-        super(argumentType: MoveArgumentType.u16);
+class MoveU16 extends MoveType<int> {
+  MoveU16(int value) : super(MoveUtils.parseU16(value: value));
 
   /// Parses an object to MoveU16, supporting int, BigInt, Int as String, and hexDecimal integer formats.
   factory MoveU16.fromStruct(Map<String, dynamic> json) {
@@ -239,11 +75,6 @@ class MoveU16 extends MoveArgument<int> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU16) return false;
@@ -256,12 +87,8 @@ class MoveU16 extends MoveArgument<int> {
 
 /// Represents a Move `u32` argument type (32-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU32 extends MoveArgument<int> {
-  @override
-  final int value;
-  MoveU32(int value)
-      : value = MoveUtils.parseU32(value: value),
-        super(argumentType: MoveArgumentType.u32);
+class MoveU32 extends MoveType<int> {
+  MoveU32(int value) : super(MoveUtils.parseU32(value: value));
   factory MoveU32.fromStruct(Map<String, dynamic> json) {
     return MoveU32(json.as("value"));
   }
@@ -283,11 +110,6 @@ class MoveU32 extends MoveArgument<int> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU32) return false;
@@ -300,12 +122,8 @@ class MoveU32 extends MoveArgument<int> {
 
 /// Represents a Move `u64` argument type (64-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU64 extends MoveArgument<BigInt> {
-  @override
-  final BigInt value;
-  MoveU64(BigInt value)
-      : value = MoveUtils.parseU64(value: value),
-        super(argumentType: MoveArgumentType.u64);
+class MoveU64 extends MoveType<BigInt> {
+  MoveU64(BigInt value) : super(MoveUtils.parseU64(value: value));
   factory MoveU64.fromStruct(Map<String, dynamic> json) {
     return MoveU64(json.as("value"));
   }
@@ -320,18 +138,9 @@ class MoveU64 extends MoveArgument<BigInt> {
         property: property);
   }
 
-  factory MoveU64.aptos(String amount) {
-    return MoveU64(AptosHelper.toApt(amount));
-  }
-
   @override
   Layout<Map<String, dynamic>> createLayout({String? property}) {
     return layout(property: property);
-  }
-
-  @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
   }
 
   @override
@@ -347,12 +156,8 @@ class MoveU64 extends MoveArgument<BigInt> {
 
 /// Represents a Move `u128` argument type (128-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU128 extends MoveArgument {
-  @override
-  final BigInt value;
-  MoveU128(BigInt value)
-      : value = MoveUtils.parseU128(value: value),
-        super(argumentType: MoveArgumentType.u128);
+class MoveU128 extends MoveType<BigInt> {
+  MoveU128(BigInt value) : super(MoveUtils.parseU128(value: value));
   factory MoveU128.fromStruct(Map<String, dynamic> json) {
     return MoveU128(json.as("value"));
   }
@@ -374,11 +179,6 @@ class MoveU128 extends MoveArgument {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU128) return false;
@@ -391,12 +191,8 @@ class MoveU128 extends MoveArgument {
 
 /// Represents a Move `u256` argument type (256-bit unsigned integer).
 /// this class provides encoding for integers to little-endian byte format.
-class MoveU256 extends MoveArgument {
-  @override
-  final BigInt value;
-  MoveU256(BigInt value)
-      : value = MoveUtils.parseU256(value: value),
-        super(argumentType: MoveArgumentType.u256);
+class MoveU256 extends MoveType<BigInt> {
+  MoveU256(BigInt value) : super(MoveUtils.parseU256(value: value));
   factory MoveU256.fromStruct(Map<String, dynamic> json) {
     return MoveU256(json.as("value"));
   }
@@ -417,11 +213,6 @@ class MoveU256 extends MoveArgument {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU256) return false;
@@ -433,10 +224,8 @@ class MoveU256 extends MoveArgument {
 }
 
 /// Represents a Move `bool` argument type (boolean value).
-class MoveBool extends MoveArgument {
-  @override
-  final bool value;
-  MoveBool(this.value) : super(argumentType: MoveArgumentType.boolean);
+class MoveBool extends MoveType<bool> {
+  MoveBool(super.value);
   factory MoveBool.fromStruct(Map<String, dynamic> json) {
     return MoveBool(json.as("value"));
   }
@@ -457,11 +246,6 @@ class MoveBool extends MoveArgument {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveBool) return false;
@@ -474,12 +258,8 @@ class MoveBool extends MoveArgument {
 
 /// Represents a Move `address` argument type.
 /// The bytes should be 32 bytes, and data is encoded without length.
-class MoveAddress extends MoveArgument<List<int>> {
-  @override
-  final List<int> value;
-  MoveAddress(List<int> value)
-      : value = MoveUtils.parseAddressBytes(value: value).asImmutableBytes,
-        super(argumentType: MoveArgumentType.address);
+class MoveAddress extends MoveType<List<int>> {
+  MoveAddress(List<int> value) : super(MoveUtils.parseAddressBytes(value: value).asImmutableBytes);
   factory MoveAddress.fromStruct(Map<String, dynamic> json) {
     return MoveAddress(json.asBytes("value"));
   }
@@ -498,11 +278,6 @@ class MoveAddress extends MoveArgument<List<int>> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveAddress) return false;
@@ -515,12 +290,8 @@ class MoveAddress extends MoveArgument<List<int>> {
 
 /// Represents a Move `u8Vector` argument type (a vector of u8 values).
 /// The data is encoded in BCS format, with the length encoded as LEB128.
-class MoveU8Vector extends MoveArgument<List<int>> {
-  @override
-  final List<int> value;
-  MoveU8Vector(List<int> value)
-      : value = value.asImmutableBytes,
-        super(argumentType: MoveArgumentType.u8Vector);
+class MoveU8Vector extends MoveType<List<int>> {
+  MoveU8Vector(List<int> value) : super(value.asImmutableBytes);
   factory MoveU8Vector.parse(Object? object) {
     return MoveU8Vector(MoveUtils.parseBytes(value: object));
   }
@@ -541,11 +312,6 @@ class MoveU8Vector extends MoveArgument<List<int>> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveU8Vector) return false;
@@ -558,12 +324,8 @@ class MoveU8Vector extends MoveArgument<List<int>> {
 
 /// Represents a Move `serialized` argument type.
 /// This is used for Move transaction script arguments, similar to `MoveU8Vector`,
-class MoveSerialized extends MoveArgument<List<int>> {
-  @override
-  final List<int> value;
-  MoveSerialized(List<int> value)
-      : value = value.asImmutableBytes,
-        super(argumentType: MoveArgumentType.serialized);
+class MoveSerialized extends MoveType<List<int>> {
+  MoveSerialized(List<int> value) : super(value.asImmutableBytes);
   factory MoveSerialized.fromHex(String hexBytes) {
     return MoveSerialized(BytesUtils.fromHexString(hexBytes));
   }
@@ -586,11 +348,6 @@ class MoveSerialized extends MoveArgument<List<int>> {
   }
 
   @override
-  Map<String, dynamic> toLayoutStruct() {
-    return {"value": value};
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveSerialized) return false;
@@ -603,8 +360,7 @@ class MoveSerialized extends MoveArgument<List<int>> {
 
 /// Represents a Move `string` argument type (a UTF-8 encoded string).
 /// The data is encoded to UTF-8, and then the bytes are encoded as BCS with the length encoded as LEB128.
-class MoveString extends AptosEntryFunctionArguments<String>
-    implements AptosScriptArguments<String> {
+class MoveString extends MoveType<String> {
   const MoveString(super.value);
   factory MoveString.parse(Object? value) {
     if (value is MoveString) return value;
@@ -621,11 +377,6 @@ class MoveString extends AptosEntryFunctionArguments<String>
   }
 
   @override
-  MoveArgument asMoveArgument() {
-    return MoveU8Vector(StringUtils.encode(value));
-  }
-
-  @override
   operator ==(other) {
     if (identical(this, other)) return true;
     if (other is! MoveString) return false;
@@ -638,7 +389,7 @@ class MoveString extends AptosEntryFunctionArguments<String>
 
 /// Represents a Move `Option` argument type (optional type).
 class MoveOption<CODEC extends MoveType>
-    extends AptosEntryFunctionArguments<CODEC?> {
+    extends MoveType<CODEC?> {
   const MoveOption(super.value);
 
   static Layout<Map<String, dynamic>> layout(MoveType? codec,
@@ -679,8 +430,7 @@ class MoveOption<CODEC extends MoveType>
 /// Represents a Move `vector` argument type (a list of MoveType values).
 /// The length of the vector is encoded as LEB128.
 class MoveVector<MOVE extends MoveType>
-    extends AptosEntryFunctionArguments<List<MOVE>>
-    implements AptosScriptArguments<List<MOVE>> {
+    extends MoveType<List<MOVE>> {
   const MoveVector._(super.value);
   factory MoveVector(List<MOVE> value) {
     if (value.isNotEmpty) {
@@ -755,15 +505,6 @@ class MoveVector<MOVE extends MoveType>
   @override
   Map<String, dynamic> toLayoutStruct() {
     return {"value": value.map((e) => e.toLayoutStruct()).toList()};
-  }
-
-  @override
-  MoveArgument asMoveArgument() {
-    return switch (MOVE) {
-      const (MoveU8) =>
-        MoveU8Vector(value.map((e) => e.value).toList().cast<int>()),
-      _ => MoveSerialized(toBcs())
-    };
   }
 
   @override
