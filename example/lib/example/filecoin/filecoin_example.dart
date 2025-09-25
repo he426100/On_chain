@@ -1,81 +1,82 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:on_chain/on_chain.dart';
 
 void filecoinAddressExample() {
-  print('=== Filecoin Address Examples ===\n');
+  debugPrint('=== Filecoin Address Examples ===\n');
 
   // Generate a private key
   final privateKey = List.generate(32, (i) => i + 1);
-  print('Private Key: ${BytesUtils.toHexString(privateKey, prefix: '0x')}');
+  debugPrint('Private Key: ${BytesUtils.toHexString(privateKey, prefix: '0x')}');
 
   // Create SECP256K1 address
   final secp256k1Address = FilecoinSigner.createSecp256k1Address(privateKey);
-  print('SECP256K1 Address: ${secp256k1Address.toAddress()}');
+  debugPrint('SECP256K1 Address: ${secp256k1Address.toAddress()}');
 
   // Create delegated address (Ethereum-compatible)
   final delegatedAddress = FilecoinSigner.createDelegatedAddress(privateKey);
-  print('Delegated Address: ${delegatedAddress.toAddress()}');
+  debugPrint('Delegated Address: ${delegatedAddress.toAddress()}');
 
   // Parse ID address
   final idAddress = FilecoinAddress.fromString('f0123');
-  print('Parsed ID Address: ${idAddress.toAddress()}, Actor ID: ${idAddress.actorId}');
+  debugPrint('Parsed ID Address: ${idAddress.toAddress()}, Actor ID: ${idAddress.actorId}');
 
   // Address validation
-  final validAddress = 'f0456';
-  final invalidAddress = 'invalid_address';
-  print('Is "$validAddress" valid? ${FilecoinAddress.isValidAddress(validAddress)}');
-  print('Is "$invalidAddress" valid? ${FilecoinAddress.isValidAddress(invalidAddress)}');
+  const validAddress = 'f0456';
+  const invalidAddress = 'invalid_address';
+  debugPrint('Is "$validAddress" valid? ${FilecoinAddress.isValidAddress(validAddress)}');
+  debugPrint('Is "$invalidAddress" valid? ${FilecoinAddress.isValidAddress(invalidAddress)}');
 
   // Address type information
-  print('\nAddress Types:');
-  print('SECP256K1 Address Type: ${secp256k1Address.type} (value: ${secp256k1Address.type.value})');
-  print('Delegated Address Type: ${delegatedAddress.type} (value: ${delegatedAddress.type.value})');
-  print('ID Address Type: ${idAddress.type} (value: ${idAddress.type.value})');
+  debugPrint('\nAddress Types:');
+  debugPrint('SECP256K1 Address Type: ${secp256k1Address.type} (value: ${secp256k1Address.type.value})');
+  debugPrint('Delegated Address Type: ${delegatedAddress.type} (value: ${delegatedAddress.type.value})');
+  debugPrint('ID Address Type: ${idAddress.type} (value: ${idAddress.type.value})');
 
-  print('\n');
+  debugPrint('\n');
 }
 
 void filecoinAddressConverterExample() {
-  print('=== Filecoin <-> Ethereum Address Conversion Examples ===\n');
+  debugPrint('=== Filecoin <-> Ethereum Address Conversion Examples ===\n');
 
   // Convert Ethereum address to Filecoin
   final ethAddress = ETHAddress('0x1234567890123456789012345678901234567890');
-  print('Original Ethereum Address: $ethAddress');
+  debugPrint('Original Ethereum Address: $ethAddress');
 
   final filecoinFromEth = FilecoinAddressConverter.convertFromEthereum(ethAddress);
-  print('Converted to Filecoin: ${filecoinFromEth.toAddress()}');
+  debugPrint('Converted to Filecoin: ${filecoinFromEth.toAddress()}');
 
   // Convert back to Ethereum
   final ethFromFilecoin = FilecoinAddressConverter.convertToEthereum(filecoinFromEth);
-  print('Converted back to Ethereum: $ethFromFilecoin');
+  debugPrint('Converted back to Ethereum: $ethFromFilecoin');
 
   // String-based conversion
-  final ethString = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd';
+  const ethString = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd';
   final filecoinString = FilecoinAddressConverter.convertFromEthereumString(ethString);
-  print('\nString conversion:');
-  print('Ethereum: $ethString');
-  print('Filecoin: $filecoinString');
+  debugPrint('\nString conversion:');
+  debugPrint('Ethereum: $ethString');
+  debugPrint('Filecoin: $filecoinString');
 
   final convertedBack = FilecoinAddressConverter.convertToEthereumString(filecoinString);
-  print('Back to Ethereum: $convertedBack');
+  debugPrint('Back to Ethereum: $convertedBack');
 
   // ID address conversion
   final idAddress = FilecoinAddress.fromString('f09876');
   final ethFromId = FilecoinAddressConverter.convertToEthereum(idAddress);
-  print('\nID Address conversion:');
-  print('Filecoin ID: ${idAddress.toAddress()}');
-  print('Ethereum equivalent: $ethFromId');
+  debugPrint('\nID Address conversion:');
+  debugPrint('Filecoin ID: ${idAddress.toAddress()}');
+  debugPrint('Ethereum equivalent: $ethFromId');
 
   // Check conversion capability
-  print('\nConversion capability check:');
-  print('Can convert delegated address: ${FilecoinAddressConverter.canConvertToEthereum(filecoinFromEth)}');
-  print('Can convert ID address: ${FilecoinAddressConverter.canConvertToEthereum(idAddress)}');
+  debugPrint('\nConversion capability check:');
+  debugPrint('Can convert delegated address: ${FilecoinAddressConverter.canConvertToEthereum(filecoinFromEth)}');
+  debugPrint('Can convert ID address: ${FilecoinAddressConverter.canConvertToEthereum(idAddress)}');
 
-  print('\n');
+  debugPrint('\n');
 }
 
 void filecoinTransactionExample() {
-  print('=== Filecoin Transaction Examples ===\n');
+  debugPrint('=== Filecoin Transaction Examples ===\n');
 
   // Create addresses
   final privateKey1 = List.generate(32, (i) => i + 1);
@@ -84,8 +85,8 @@ void filecoinTransactionExample() {
   final fromAddress = FilecoinSigner.createSecp256k1Address(privateKey1);
   final toAddress = FilecoinSigner.createDelegatedAddress(privateKey2);
 
-  print('From Address: ${fromAddress.toAddress()}');
-  print('To Address: ${toAddress.toAddress()}');
+  debugPrint('From Address: ${fromAddress.toAddress()}');
+  debugPrint('To Address: ${toAddress.toAddress()}');
 
   // Create a simple transfer transaction
   final transaction = FilecoinTransaction.transfer(
@@ -98,39 +99,39 @@ void filecoinTransactionExample() {
     gasPremium: BigInt.from(1000),
   );
 
-  print('\nTransaction Details:');
-  print('Version: ${transaction.version}');
-  print('Nonce: ${transaction.nonce}');
-  print('Value: ${transaction.value} attoFIL (${transaction.value ~/ BigInt.from(1000000000000000000)} FIL)');
-  print('Gas Limit: ${transaction.gasLimit}');
-  print('Gas Fee Cap: ${transaction.gasFeeCap}');
-  print('Gas Premium: ${transaction.gasPremium}');
-  print('Method: ${transaction.method} (${transaction.method.value})');
+  debugPrint('\nTransaction Details:');
+  debugPrint('Version: ${transaction.version}');
+  debugPrint('Nonce: ${transaction.nonce}');
+  debugPrint('Value: ${transaction.value} attoFIL (${transaction.value ~/ BigInt.from(1000000000000000000)} FIL)');
+  debugPrint('Gas Limit: ${transaction.gasLimit}');
+  debugPrint('Gas Fee Cap: ${transaction.gasFeeCap}');
+  debugPrint('Gas Premium: ${transaction.gasPremium}');
+  debugPrint('Method: ${transaction.method} (${transaction.method.value})');
 
   // Get transaction CID
   final cid = transaction.getCid();
-  print('Transaction CID: ${BytesUtils.toHexString(cid, prefix: '0x')}');
+  debugPrint('Transaction CID: ${BytesUtils.toHexString(cid, prefix: '0x')}');
 
   // Convert to JSON (for RPC)
   final json = transaction.toJson();
-  print('\nTransaction JSON:');
+  debugPrint('\nTransaction JSON:');
   json.forEach((key, value) {
-    print('  $key: $value');
+    debugPrint('  $key: $value');
   });
 
-  print('\n');
+  debugPrint('\n');
 }
 
 void filecoinSigningExample() {
-  print('=== Filecoin Transaction Signing Examples ===\n');
+  debugPrint('=== Filecoin Transaction Signing Examples ===\n');
 
   // Generate keypair
   final privateKey = List.generate(32, (i) => i + 42);
   final fromAddress = FilecoinSigner.createSecp256k1Address(privateKey);
   final toAddress = FilecoinSigner.createDelegatedAddress(List.generate(32, (i) => i + 200));
 
-  print('Signer Address: ${fromAddress.toAddress()}');
-  print('Recipient Address: ${toAddress.toAddress()}');
+  debugPrint('Signer Address: ${fromAddress.toAddress()}');
+  debugPrint('Recipient Address: ${toAddress.toAddress()}');
 
   // Create transaction
   final transaction = FilecoinTransaction.transfer(
@@ -149,16 +150,16 @@ void filecoinSigningExample() {
     privateKey: privateKey,
   );
 
-  print('\nSigned Transaction:');
-  print('Signature Type: ${signedTransaction.signature.type} (${signedTransaction.signature.type.value})');
-  print('Signature Data Length: ${signedTransaction.signature.data.length} bytes');
-  print('Signature Data: ${BytesUtils.toHexString(signedTransaction.signature.data.take(32).toList(), prefix: '0x')}...');
+  debugPrint('\nSigned Transaction:');
+  debugPrint('Signature Type: ${signedTransaction.signature.type} (${signedTransaction.signature.type.value})');
+  debugPrint('Signature Data Length: ${signedTransaction.signature.data.length} bytes');
+  debugPrint('Signature Data: ${BytesUtils.toHexString(signedTransaction.signature.data.take(32).toList(), prefix: '0x')}...');
 
   // Convert to JSON for submission
   final signedJson = signedTransaction.toJson();
-  print('\nSigned Transaction JSON (for RPC submission):');
-  print('Message: ${signedJson['Message']}');
-  print('Signature: ${signedJson['Signature']}');
+  debugPrint('\nSigned Transaction JSON (for RPC submission):');
+  debugPrint('Message: ${signedJson['Message']}');
+  debugPrint('Signature: ${signedJson['Signature']}');
 
   // Verify signature
   final isValid = FilecoinSigner.verifySignature(
@@ -166,45 +167,45 @@ void filecoinSigningExample() {
     signature: signedTransaction.signature,
     senderAddress: fromAddress,
   );
-  print('\nSignature Verification: ${isValid ? 'VALID' : 'INVALID'}');
+  debugPrint('\nSignature Verification: ${isValid ? 'VALID' : 'INVALID'}');
 
-  print('\n');
+  debugPrint('\n');
 }
 
 void filecoinMethodsExample() {
-  print('=== Filecoin Methods and Values Examples ===\n');
+  debugPrint('=== Filecoin Methods and Values Examples ===\n');
 
-  print('Transaction Methods:');
-  print('SEND: ${FilecoinMethod.send.value}');
-  print('INVOKE_EVM: ${FilecoinMethod.invokeEvm.value}');
+  debugPrint('Transaction Methods:');
+  debugPrint('SEND: ${FilecoinMethod.send.value}');
+  debugPrint('INVOKE_EVM: ${FilecoinMethod.invokeEvm.value}');
 
-  print('\nAddress Types:');
+  debugPrint('\nAddress Types:');
   for (final type in FilecoinAddressType.values) {
-    print('${type.name.toUpperCase()}: ${type.value}');
+    debugPrint('${type.name.toUpperCase()}: ${type.value}');
   }
 
-  print('\nSignature Types:');
+  debugPrint('\nSignature Types:');
   for (final type in FilecoinSignatureType.values) {
-    print('${type.name.toUpperCase()}: ${type.value}');
+    debugPrint('${type.name.toUpperCase()}: ${type.value}');
   }
 
-  print('\nConstants:');
-  print('Ethereum Address Manager Actor ID: ${FilecoinAddress.ethereumAddressManagerActorId}');
-  print('Address Prefix: "${FilecoinAddress.prefix}"');
-  print('Base32 Alphabet: "${FilecoinAddress.base32Alphabet}"');
-  print('Checksum Size: ${FilecoinAddress.checksumSize}');
+  debugPrint('\nConstants:');
+  debugPrint('Ethereum Address Manager Actor ID: ${FilecoinAddress.ethereumAddressManagerActorId}');
+  debugPrint('Address Prefix: "${FilecoinAddress.prefix}"');
+  debugPrint('Base32 Alphabet: "${FilecoinAddress.base32Alphabet}"');
+  debugPrint('Checksum Size: ${FilecoinAddress.checksumSize}');
 
-  print('\n');
+  debugPrint('\n');
 }
 
 void main() {
-  print('🚀 Filecoin Examples - On Chain Library\n');
-  print('This example demonstrates Filecoin functionality including:');
-  print('- Address creation and validation');
-  print('- Address conversion between Filecoin and Ethereum');
-  print('- Transaction creation and signing');
-  print('- Constants and method values');
-  print('\n' + '=' * 60 + '\n');
+  debugPrint('🚀 Filecoin Examples - On Chain Library\n');
+  debugPrint('This example demonstrates Filecoin functionality including:');
+  debugPrint('- Address creation and validation');
+  debugPrint('- Address conversion between Filecoin and Ethereum');
+  debugPrint('- Transaction creation and signing');
+  debugPrint('- Constants and method values');
+  debugPrint('\n${'=' * 60}\n');
 
   filecoinAddressExample();
   filecoinAddressConverterExample();
@@ -212,7 +213,7 @@ void main() {
   filecoinSigningExample();
   filecoinMethodsExample();
 
-  print('✅ All Filecoin examples completed successfully!');
-  print('\n' + '=' * 60);
-  print('📚 For more information, visit: https://github.com/mrtnetwork/on_chain');
+  debugPrint('✅ All Filecoin examples completed successfully!');
+  debugPrint('\n${'=' * 60}');
+  debugPrint('📚 For more information, visit: https://github.com/mrtnetwork/on_chain');
 }
