@@ -1,12 +1,11 @@
 # ON CHAIN Dart Package
 
-Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, Solana, and Cardano blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
+Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, and Solana blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
 
 this plugin enables:
 
 - Tron: Account creation, asset transfers, native operations, and smart contract execution.
 - Solana: Metaplex integration, token management, staking, and smart contracts.
-- Cardano: Legacy and Shelley-era support, staking, pools, and transactions.
 This package streamlines blockchain development across multiple ecosystems, making it a comprehensive toolkit for Dart developers.
 
 
@@ -89,29 +88,6 @@ This package streamlines blockchain development across multiple ecosystems, maki
 - HD-Wallet: Manage mnemonic generation, seed derivation, and address creation
 
 - [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/solana)
-
-
-### Cardano Network
-- Transaction: Generate and construct Cardano transactions across both the Byron and Shelley eras. Serialization, and Deserialization.
-
-- Sign: Effortlessly Sign Transactions
-
-- Addresses: Comprehensive address support, base, reward, pointer, enterprise, as well as both Byron and legacy Byron formats.
-
-- HD-Wallet: Seed generator for legacy and Icarus formats, alongside HD wallet management for both Shelley and Byron era
-
-- Transactions: The plugin boasts extensive support for a variety of Cardano transactions.
-Here are some examples:
-
-  - Mint
-  - Plutus
-  - NativeScripts
-  - Certificate (Stake, Pool, MIR)
-  - Metadata
-  - Withdrawals
-
-- [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/cardano)
-
 
 
 ### solidity
