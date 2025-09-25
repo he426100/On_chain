@@ -1,5 +1,3 @@
-library filecoin;
-
 // Address
 export 'src/address/fil_address.dart';
 export 'src/address/address_converter.dart';
