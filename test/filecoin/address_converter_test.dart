@@ -45,9 +45,8 @@ void main() {
     });
 
     test('Cannot convert non-delegated addresses to Ethereum', () {
-      // SECP256K1 address cannot be converted
-      final secp256k1Address = FilecoinAddress.fromString('f1abcdefghijk');
-      expect(() => secp256k1Address, throwsA(isA<ArgumentError>()));
+      // SECP256K1 address cannot be converted - test invalid address string
+      expect(() => FilecoinAddress.fromString('f1abcdefghijk'), throwsA(isA<ArgumentError>()));
 
       // Test with a properly constructed SECP256K1 address
       final testPayload = List.generate(20, (i) => i);
