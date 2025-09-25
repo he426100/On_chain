@@ -44,12 +44,10 @@ Several model structures have been updated. Please review the changes before upg
 
 - Update dependencies.
 - Added Support for aptos graphQL.
-- Fix Sui multisig address validator
 
 ## 6.0.0
 
 - Update dependencies.
-- Added Sui Network support.
 - Added Aptos Network support.
 
 ## 5.1.0

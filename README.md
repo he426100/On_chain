@@ -1,13 +1,13 @@
 # ON CHAIN Dart Package
 
-Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, Solana, Cardano, Aptos, and Sui blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
+Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, Solana, Cardano, and Aptos blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
 
 this plugin enables:
 
 - Tron: Account creation, asset transfers, native operations, and smart contract execution.
 - Solana: Metaplex integration, token management, staking, and smart contracts.
 - Cardano: Legacy and Shelley-era support, staking, pools, and transactions.
-- Aptos & Sui: Encoding/decoding of Move types, transaction management, and smart contract interactions.
+- Aptos: Encoding/decoding of Move types, transaction management, and smart contract interactions.
 This package streamlines blockchain development across multiple ecosystems, making it a comprehensive toolkit for Dart developers.
 
 
@@ -128,20 +128,6 @@ Here are some examples:
 
 - [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/aptos)
 
-
-### Sui
-
-- Transactions: Generate and execute Programmable transactions .
-
-- Addresses: Full support for ed25519, secp256r1, secp256k1, and Multisig
-
-- Sign: Effortlessly sign and create transactions authenticator using ed25519, secp256r1, secp256k1, and Multisig.
-
-- Provider: Robust interaction with the Sui blockchain via RPC.
-
-- HD-Wallet: Manage mnemonic generation, seed derivation, and address creation
-
-- [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/sui)
 
 ### solidity
 

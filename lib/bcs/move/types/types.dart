@@ -71,11 +71,6 @@ abstract class AptosEntryFunctionArguments<T> extends MoveType<T> {
   const AptosEntryFunctionArguments(super.value);
 }
 
-/// Abstract class for representing Sui call arguments.
-/// Inherits from [MoveType] with the generic type [T].
-abstract class SuiCallArguments<T> extends MoveType<T> {
-  const SuiCallArguments(super.value);
-}
 
 /// Abstract class for representing Aptos Script arguments.
 /// Inherits from [MoveType] with the generic type [T].
@@ -90,8 +85,7 @@ abstract class AptosScriptArguments<T> extends MoveType<T> {
 abstract class MoveArgument<T> extends BcsVariantSerialization
     implements
         AptosEntryFunctionArguments<T>,
-        AptosScriptArguments<T>,
-        SuiCallArguments<T> {
+        AptosScriptArguments<T> {
   final MoveArgumentType argumentType;
   const MoveArgument({required this.argumentType});
   static Layout<Map<String, dynamic>> layout({String? property}) {
@@ -610,7 +604,7 @@ class MoveSerialized extends MoveArgument<List<int>> {
 /// Represents a Move `string` argument type (a UTF-8 encoded string).
 /// The data is encoded to UTF-8, and then the bytes are encoded as BCS with the length encoded as LEB128.
 class MoveString extends AptosEntryFunctionArguments<String>
-    implements AptosScriptArguments<String>, SuiCallArguments<String> {
+    implements AptosScriptArguments<String> {
   const MoveString(super.value);
   factory MoveString.parse(Object? value) {
     if (value is MoveString) return value;
@@ -644,8 +638,7 @@ class MoveString extends AptosEntryFunctionArguments<String>
 
 /// Represents a Move `Option` argument type (optional type).
 class MoveOption<CODEC extends MoveType>
-    extends AptosEntryFunctionArguments<CODEC?>
-    implements SuiCallArguments<CODEC?> {
+    extends AptosEntryFunctionArguments<CODEC?> {
   const MoveOption(super.value);
 
   static Layout<Map<String, dynamic>> layout(MoveType? codec,
@@ -687,7 +680,7 @@ class MoveOption<CODEC extends MoveType>
 /// The length of the vector is encoded as LEB128.
 class MoveVector<MOVE extends MoveType>
     extends AptosEntryFunctionArguments<List<MOVE>>
-    implements AptosScriptArguments<List<MOVE>>, SuiCallArguments<List<MOVE>> {
+    implements AptosScriptArguments<List<MOVE>> {
   const MoveVector._(super.value);
   factory MoveVector(List<MOVE> value) {
     if (value.isNotEmpty) {

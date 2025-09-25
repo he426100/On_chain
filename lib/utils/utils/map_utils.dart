@@ -1,7 +1,7 @@
 import 'package:blockchain_utils/exception/exception/exception.dart';
 import 'package:blockchain_utils/utils/numbers/utils/bigint_utils.dart';
 import 'package:blockchain_utils/utils/numbers/utils/int_utils.dart';
-import 'package:on_chain/sui/src/exception/exception.dart';
+import 'package:on_chain/bcs/exeption/exeption.dart';
 
 extension QuickMap on Map<String, dynamic> {
   static const Map<String, dynamic> _map = {};
@@ -13,14 +13,14 @@ extension QuickMap on Map<String, dynamic> {
         return null as T;
       }
       throw error ??
-          DartSuiPluginException('Key not found.',
+          BcsSerializationException('Key not found.',
               details: {'key': key, 'data': this});
     }
     try {
       return value as T;
     } on TypeError {
       throw error ??
-          DartSuiPluginException('Incorrect value.', details: {
+          BcsSerializationException('Incorrect value.', details: {
             'key': key,
             'expected': '$T',
             'value': value.runtimeType,
@@ -35,13 +35,13 @@ extension QuickMap on Map<String, dynamic> {
       if (null is T) {
         return null as T;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return BigintUtils.parse(value) as T;
     } on TypeError {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'expected': '$T',
         'value': value.runtimeType,
@@ -56,13 +56,13 @@ extension QuickMap on Map<String, dynamic> {
       if (null is T) {
         return null as T;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return IntUtils.parse(value) as T;
     } on TypeError {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'expected': '$T',
         'value': value.runtimeType,
@@ -73,7 +73,7 @@ extension QuickMap on Map<String, dynamic> {
 
   E asMap<E>(String key, {BlockchainUtilsException? error}) {
     if (_map is! E) {
-      throw const DartSuiPluginException(
+      throw const BcsSerializationException(
           'Invalid map casting. only use `asMap` method for casting Map<String,dynamic>.');
     }
     final Map? value = as(key);
@@ -82,14 +82,14 @@ extension QuickMap on Map<String, dynamic> {
         return null as E;
       }
       throw error ??
-          DartSuiPluginException('Key not found.',
+          BcsSerializationException('Key not found.',
               details: {'key': key, 'data': this});
     }
     try {
       return value.cast<String, dynamic>() as E;
     } on TypeError {
       throw error ??
-          DartSuiPluginException('Incorrect value.', details: {
+          BcsSerializationException('Incorrect value.', details: {
             'key': key,
             'expected': '$E',
             'value': value.runtimeType,
@@ -100,7 +100,7 @@ extension QuickMap on Map<String, dynamic> {
 
   E asBytes<E>(String key) {
     if (<int>[] is! E) {
-      throw const DartSuiPluginException(
+      throw const BcsSerializationException(
           'Invalid bytes casting. only use `valueAsList` method for bytes.');
     }
     final List? value = as(key);
@@ -108,13 +108,13 @@ extension QuickMap on Map<String, dynamic> {
       if (null is E) {
         return null as E;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return value.cast<int>() as E;
     } on TypeError {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'expected': '$E',
         'value': value.runtimeType,
@@ -130,13 +130,13 @@ extension QuickMap on Map<String, dynamic> {
       if (!throwOnNull) {
         return null;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return value.map((e) => (e as Map).cast<String, dynamic>()).toList();
     } catch (e, s) {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'value': value.runtimeType,
         'data': this,
@@ -152,13 +152,13 @@ extension QuickMap on Map<String, dynamic> {
       if (!throwOnNull) {
         return null;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return value.cast<String>();
     } catch (e, s) {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'value': value.runtimeType,
         'data': this,
@@ -174,13 +174,13 @@ extension QuickMap on Map<String, dynamic> {
       if (!throwOnNull) {
         return null;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
       return value.map((e) => (e as List).cast<int>()).toList();
     } catch (e, s) {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'value': value.runtimeType,
         'data': this,
@@ -192,7 +192,7 @@ extension QuickMap on Map<String, dynamic> {
 
   E _valueAsList<T, E>(String key) {
     if (_list is! E) {
-      throw const DartSuiPluginException(
+      throw const BcsSerializationException(
           'Invalid list casting. only use `valueAsList` method for list casting.');
     }
     final List? value = as(key);
@@ -200,7 +200,7 @@ extension QuickMap on Map<String, dynamic> {
       if (null is E) {
         return null as E;
       }
-      throw DartSuiPluginException('Key not found.',
+      throw BcsSerializationException('Key not found.',
           details: {'key': key, 'data': this});
     }
     try {
@@ -210,7 +210,7 @@ extension QuickMap on Map<String, dynamic> {
       }
       return value.cast<T>() as E;
     } on TypeError {
-      throw DartSuiPluginException('Incorrect value.', details: {
+      throw BcsSerializationException('Incorrect value.', details: {
         'key': key,
         'expected': '$T',
         'value': value.runtimeType,

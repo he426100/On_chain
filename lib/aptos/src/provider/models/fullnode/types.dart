@@ -1,6 +1,6 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/aptos/src/transaction/utils/utils.dart';
-import 'package:on_chain/sui/src/exception/exception.dart';
+import 'package:on_chain/aptos/src/exception/exception.dart';
 import 'package:on_chain/utils/utils/map_utils.dart';
 
 class TableItemRequestParams {
@@ -84,7 +84,7 @@ enum AptosApiMoveFunctionVisibilty {
 
   static AptosApiMoveFunctionVisibilty fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct MoveFunctionVisibilty from the given name.",
             details: {"name": name}));
   }
@@ -98,7 +98,7 @@ enum AptosApiMoveAbility {
 
   static AptosApiMoveAbility fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct MoveFunctionVisibilty from the given name.",
             details: {"name": name}));
   }
@@ -241,13 +241,13 @@ class AptosApiMoveModule {
   ///
   /// Returns the [AptosApiMoveFunction] if found.
   ///
-  /// Throws [DartSuiPluginException] if no matching entry function is found,
+  /// Throws [DartAptosPluginException] if no matching entry function is found,
   /// including details about the searched function name and available entry functions.
   AptosApiMoveFunction findEntryFunction(String functionName) {
     return exposedFunctions.firstWhere(
       (e) => e.isEntry && e.name.toLowerCase() == functionName.toLowerCase(),
       orElse: () {
-        throw DartSuiPluginException(
+        throw DartAptosPluginException(
           "Entry function '$functionName' not found.",
           details: {
             "searchedFunctionName": functionName,
@@ -267,13 +267,13 @@ class AptosApiMoveModule {
   ///
   /// Returns the [AptosApiMoveFunction] if found.
   ///
-  /// Throws [DartSuiPluginException] if no matching view function is found,
+  /// Throws [DartAptosPluginException] if no matching view function is found,
   /// including details about the searched function name and available view functions.
   AptosApiMoveFunction findViewFunction(String functionName) {
     return exposedFunctions.firstWhere(
       (e) => e.isView && e.name.toLowerCase() == functionName.toLowerCase(),
       orElse: () {
-        throw DartSuiPluginException(
+        throw DartAptosPluginException(
           "View function '$functionName' not found.",
           details: {
             "searchedFunctionName": functionName,
@@ -361,7 +361,7 @@ enum AptosApiTransactionPayloadTye {
   const AptosApiTransactionPayloadTye(this.name);
   static AptosApiTransactionPayloadTye fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct transaction payload from the given name.",
             details: {"name": name}));
   }
@@ -484,7 +484,7 @@ enum AptoApiTransactionSignatureType {
   const AptoApiTransactionSignatureType(this.name);
   static AptoApiTransactionSignatureType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct transaction signature from the given name.",
             details: {"name": name}));
   }
@@ -502,7 +502,7 @@ enum AptoApiAccountSignatureType {
   const AptoApiAccountSignatureType(this.name);
   static AptoApiAccountSignatureType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct account signature from the given name.",
             details: {"name": name}));
   }
@@ -692,7 +692,7 @@ enum AptoApiPublicKeyType {
   const AptoApiPublicKeyType(this.name);
   static AptoApiPublicKeyType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct public key from the given name.",
             details: {"name": name}));
   }
@@ -744,7 +744,7 @@ enum AptoApiSignatureType {
   const AptoApiSignatureType(this.name);
   static AptoApiSignatureType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct signature from the given name.",
             details: {"name": name}));
   }
@@ -986,7 +986,7 @@ enum AptoApiTransactionType {
   const AptoApiTransactionType(this.name);
   static AptoApiTransactionType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct transaction from the given name.",
             details: {"name": name}));
   }
@@ -1615,7 +1615,7 @@ enum AptosApiWriteSetChangeType {
   const AptosApiWriteSetChangeType(this.name);
   static AptosApiWriteSetChangeType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct write set change from the given name.",
             details: {"name": name}));
   }
@@ -1927,7 +1927,7 @@ enum AptosApiRoleType {
   const AptosApiRoleType(this.name);
   static AptosApiRoleType fromName(String? name) {
     return values.firstWhere((e) => e.name == name,
-        orElse: () => throw DartSuiPluginException(
+        orElse: () => throw DartAptosPluginException(
             "cannot find correct role type from the given name.",
             details: {"name": name}));
   }

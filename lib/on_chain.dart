@@ -6,6 +6,5 @@ export 'tron/tron.dart';
 export 'ada/ada.dart';
 export 'solana/solana.dart';
 export 'aptos/aptos.dart';
-export 'sui/sui.dart';
 export 'filecoin/filecoin.dart';
 export 'bcs/serialization.dart';

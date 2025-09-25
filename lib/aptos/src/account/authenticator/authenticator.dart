@@ -7,7 +7,6 @@ import 'package:on_chain/aptos/src/keypair/keys/ed25519.dart';
 import 'package:on_chain/aptos/src/keypair/types/types.dart';
 import 'package:on_chain/aptos/src/transaction/constants/const.dart';
 import 'package:on_chain/bcs/serialization/serialization.dart';
-import 'package:on_chain/sui/src/exception/exception.dart';
 import 'package:on_chain/utils/utils/map_utils.dart';
 
 /// An `AccountAuthenticator` is an abstraction of a signature scheme. It must know:
@@ -121,7 +120,7 @@ class AptosEd25519Signature extends AptosSignature {
   }
   factory AptosEd25519Signature(List<int> signature) {
     if (signature.length != CryptoSignerConst.ed25519SignatureLength) {
-      throw DartSuiPluginException("Invalid signature length.", details: {
+      throw DartAptosPluginException("Invalid signature length.", details: {
         "expected": CryptoSignerConst.ed25519SignatureLength,
         "length": signature.length
       });
@@ -170,7 +169,7 @@ class AptosEd25519AnySignature extends AptosAnySignature {
   }
   factory AptosEd25519AnySignature(List<int> signature) {
     if (signature.length != CryptoSignerConst.ed25519SignatureLength) {
-      throw DartSuiPluginException("Invalid signature length.", details: {
+      throw DartAptosPluginException("Invalid signature length.", details: {
         "expected": CryptoSignerConst.ed25519SignatureLength,
         "length": signature.length
       });
@@ -210,7 +209,7 @@ class AptosSecp256k1AnySignature extends AptosAnySignature {
         super(type: AptosAnySignatures.secp256k1);
   factory AptosSecp256k1AnySignature(List<int> signature) {
     if (signature.length != CryptoSignerConst.ed25519SignatureLength) {
-      throw DartSuiPluginException("Invalid signature length.", details: {
+      throw DartAptosPluginException("Invalid signature length.", details: {
         "expected": CryptoSignerConst.ecdsaSignatureLength,
         "length": signature.length
       });
