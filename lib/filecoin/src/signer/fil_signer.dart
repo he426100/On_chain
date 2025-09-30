@@ -54,11 +54,11 @@ class FilecoinSigner {
     required FilecoinTransaction transaction,
     required List<int> privateKey,
   }) {
-    // Get transaction message bytes
-    final messageBytes = transaction.getMessageBytes();
+    // Get CID (Content Identifier) for the transaction
+    final cid = transaction.getCid();
 
-    // Hash the message with Blake2b
-    final messageHash = QuickCrypto.blake2b256Hash(messageBytes);
+    // Hash the CID with Blake2b-256 (as per Filecoin specification)
+    final messageHash = QuickCrypto.blake2b256Hash(cid);
 
     // Sign with SECP256k1
     final signer = Secp256k1Signer.fromKeyBytes(privateKey);

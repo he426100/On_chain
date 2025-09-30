@@ -93,7 +93,7 @@ void main() {
 
       final cid = transaction.getCid();
       expect(cid, isNotEmpty);
-      expect(cid.length, equals(32)); // Blake2b-256 hash is 32 bytes
+      expect(cid.length, equals(38)); // CID prefix (6 bytes) + Blake2b-256 hash (32 bytes)
     });
 
     test('Transaction message bytes generation', () {
