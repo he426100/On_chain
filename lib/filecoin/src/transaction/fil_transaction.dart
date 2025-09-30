@@ -200,6 +200,12 @@ class FilecoinTransaction {
     required BigInt gasFeeCap,
     required BigInt gasPremium,
   }) {
+    // Use InvokeEVM method when sending to delegated address (Ethereum-compatible)
+    // This matches wallet-core behavior
+    final method = to.type == FilecoinAddressType.delegated
+        ? FilecoinMethod.invokeEvm
+        : FilecoinMethod.send;
+
     return FilecoinTransaction(
       to: to,
       from: from,
@@ -208,7 +214,7 @@ class FilecoinTransaction {
       gasLimit: gasLimit,
       gasFeeCap: gasFeeCap,
       gasPremium: gasPremium,
-      method: FilecoinMethod.send,
+      method: method,
       params: [],
     );
   }

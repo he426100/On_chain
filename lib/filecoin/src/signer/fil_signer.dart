@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/filecoin/src/address/fil_address.dart';
 import 'package:on_chain/filecoin/src/transaction/fil_transaction.dart';
@@ -24,7 +25,7 @@ class FilecoinSignature {
   Map<String, dynamic> toJson() {
     return {
       'Type': type.value,
-      'Data': BytesUtils.toHexString(data, prefix: '0x'),
+      'Data': base64.encode(data),
     };
   }
 }

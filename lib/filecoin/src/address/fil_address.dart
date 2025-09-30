@@ -38,8 +38,8 @@ class FilecoinAddress {
 
   /// Create a SECP256K1 address from public key
   factory FilecoinAddress.fromSecp256k1PublicKey(List<int> publicKey) {
-    final hash = QuickCrypto.blake2b256Hash(publicKey);
-    final payload = hash.sublist(0, 20);
+    // Use Blake2b with 20 byte output directly (same as wallet-core)
+    final payload = QuickCrypto.blake2b160Hash(publicKey);
     return FilecoinAddress(
       type: FilecoinAddressType.secp256k1,
       actorId: 0,
@@ -141,10 +141,11 @@ class FilecoinAddress {
     return buffer.toString();
   }
 
-  /// Calculate Blake2b checksum
+  /// Calculate Blake2b checksum (4 bytes)
   static List<int> _calculateChecksum(FilecoinAddressType type, int actorId, List<int> payload) {
     final toHash = _addressToBytes(type, actorId, payload);
-    return QuickCrypto.blake2b256Hash(toHash).sublist(0, checksumSize);
+    // Use Blake2b with 4 byte (32 bit) output directly (same as wallet-core)
+    return QuickCrypto.blake2b32Hash(toHash);
   }
 
   /// Convert address components to bytes for checksum calculation
