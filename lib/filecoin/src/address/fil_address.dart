@@ -73,7 +73,8 @@ class FilecoinAddress {
     final type = FilecoinAddressType.fromValue(int.parse(typeChar));
 
     if (type == FilecoinAddressType.id) {
-      final actorId = int.parse(address.substring(2));
+      final actorIdStr = address.substring(2);
+      final actorId = _parseActorIdString(actorIdStr);
       return FilecoinAddress(
         type: type,
         actorId: actorId,
@@ -89,7 +90,8 @@ class FilecoinAddress {
       if (separatorIndex == -1 || separatorIndex <= 2) {
         throw ArgumentError('Invalid delegated address format');
       }
-      actorId = int.parse(address.substring(2, separatorIndex));
+      final actorIdStr = address.substring(2, separatorIndex);
+      actorId = _parseActorIdString(actorIdStr);
       payloadStart = separatorIndex + 1;
     }
 
@@ -124,12 +126,22 @@ class FilecoinAddress {
     buffer.write(type.value);
 
     if (type == FilecoinAddressType.id) {
-      buffer.write(actorId);
+      // Handle uint64_t max case (stored as -1 in signed int64)
+      if (actorId == -1) {
+        buffer.write('18446744073709551615');
+      } else {
+        buffer.write(actorId);
+      }
       return buffer.toString();
     }
 
     if (type == FilecoinAddressType.delegated) {
-      buffer.write(actorId);
+      // Handle uint64_t max case (stored as -1 in signed int64)
+      if (actorId == -1) {
+        buffer.write('18446744073709551615');
+      } else {
+        buffer.write(actorId);
+      }
       buffer.write('f');
     }
 
@@ -162,12 +174,19 @@ class FilecoinAddress {
 
   /// Encode actor ID as unsigned varint
   static List<int> _encodeActorId(int actorId) {
-    final result = <int>[];
-    while (actorId >= 0x80) {
-      result.add((actorId & 0x7F) | 0x80);
-      actorId >>= 7;
+    // Handle uint64_t max case (stored as -1 in signed int64)
+    // This should encode as: ff ff ff ff ff ff ff ff ff 01
+    if (actorId == -1) {
+      return [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01];
     }
-    result.add(actorId & 0x7F);
+
+    final result = <int>[];
+    var value = actorId;
+    while (value >= 0x80) {
+      result.add((value & 0x7F) | 0x80);
+      value >>= 7;
+    }
+    result.add(value & 0x7F);
     return result;
   }
 
@@ -183,6 +202,158 @@ class FilecoinAddress {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Validate address bytes
+  static bool isValidBytes(List<int> bytes) {
+    try {
+      FilecoinAddress.fromBytes(bytes);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Create address from bytes representation
+  factory FilecoinAddress.fromBytes(List<int> encoded) {
+    // Should contain at least one byte (address type).
+    if (encoded.isEmpty) {
+      throw ArgumentError('Empty address bytes');
+    }
+
+    // Get address type
+    final typeValue = encoded[0];
+    FilecoinAddressType type;
+    try {
+      type = FilecoinAddressType.fromValue(typeValue);
+    } catch (e) {
+      throw ArgumentError('Invalid address type: $typeValue');
+    }
+
+    final withoutPrefix = encoded.sublist(1);
+
+    switch (type) {
+      case FilecoinAddressType.id:
+        final result = _decodeActorId(withoutPrefix);
+        if (result == null) {
+          throw ArgumentError('Invalid actor ID encoding');
+        }
+        final actorId = result.$1;
+        final remainingPos = result.$2;
+
+        // Check if there are no remaining bytes
+        if (remainingPos != withoutPrefix.length) {
+          throw ArgumentError('Extra bytes after actor ID');
+        }
+
+        return FilecoinAddress(
+          type: type,
+          actorId: actorId,
+          payload: [],
+        );
+
+      case FilecoinAddressType.secp256k1:
+      case FilecoinAddressType.actor:
+      case FilecoinAddressType.bls:
+        if (!_isValidPayloadSize(type, withoutPrefix.length)) {
+          throw ArgumentError('Invalid payload size for type $type');
+        }
+        return FilecoinAddress(
+          type: type,
+          actorId: 0,
+          payload: withoutPrefix,
+        );
+
+      case FilecoinAddressType.delegated:
+        final result = _decodeActorId(withoutPrefix);
+        if (result == null) {
+          throw ArgumentError('Invalid actor ID encoding in delegated address');
+        }
+        final actorId = result.$1;
+        final remainingPos = result.$2;
+
+        final payloadSize = withoutPrefix.length - remainingPos;
+        if (!_isValidPayloadSize(type, payloadSize)) {
+          throw ArgumentError('Invalid payload size for delegated address');
+        }
+
+        return FilecoinAddress(
+          type: type,
+          actorId: actorId,
+          payload: withoutPrefix.sublist(remainingPos),
+        );
+    }
+  }
+
+  /// Parse actor ID from string, handling values that exceed int64 max
+  /// Dart int is 64-bit signed, but we need to support uint64_t max (18446744073709551615)
+  /// For values > int64 max, we store them as negative (overflow behavior)
+  static int _parseActorIdString(String str) {
+    // Check for invalid characters
+    if (str.isEmpty || !RegExp(r'^\d+$').hasMatch(str)) {
+      throw ArgumentError('Invalid actor ID: $str');
+    }
+
+    // Try regular parsing first
+    try {
+      return int.parse(str);
+    } catch (e) {
+      // For uint64_t max (18446744073709551615), which exceeds int64 max
+      // wallet-core stores this as uint64_t, but Dart only has signed int64
+      // We need to handle this specially - values that overflow become negative
+      const maxUint64 = '18446744073709551615';
+      if (str == maxUint64) {
+        // This is uint64_t max, store as -1 (which is what happens in 2's complement)
+        return -1;
+      }
+      // If it's not exactly uint64_t max and doesn't parse, it's invalid
+      throw ArgumentError('Actor ID exceeds maximum: $str');
+    }
+  }
+
+  /// Decode actor ID from bytes as unsigned varint
+  /// Returns (actorId, remainingPos) or null if invalid
+  static (int, int)? _decodeActorId(List<int> bytes) {
+    const maxBytes = 9;
+
+    int actorId = 0;
+    int remainingPos = 0;
+
+    for (remainingPos = 0;
+        remainingPos < bytes.length && remainingPos <= maxBytes;
+        ++remainingPos) {
+      final byte = bytes[remainingPos];
+      final k = byte & 0x7F; // SCHAR_MAX = 127 = 0x7F
+      actorId |= k << (remainingPos * 7);
+
+      // Check if last (bit 7 is 0)
+      if ((byte & 0x80) == 0) {
+        // If last byte is zero and not first byte, could have been more minimally encoded
+        if (byte == 0 && remainingPos > 0) {
+          return null;
+        }
+        ++remainingPos;
+        return (actorId, remainingPos);
+      }
+    }
+
+    // Couldn't find the last byte
+    return null;
+  }
+
+  /// Validate payload size for address type
+  static bool _isValidPayloadSize(FilecoinAddressType type, int size) {
+    switch (type) {
+      case FilecoinAddressType.id:
+        return size == 0;
+      case FilecoinAddressType.secp256k1:
+      case FilecoinAddressType.actor:
+        return size == 20;
+      case FilecoinAddressType.bls:
+        return size == 48;
+      case FilecoinAddressType.delegated:
+        return size >= 0 && size <= 54; // Max 54 bytes for delegated
     }
   }
 
