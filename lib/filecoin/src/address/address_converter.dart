@@ -1,6 +1,7 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/ethereum/src/address/evm_address.dart';
 import 'package:on_chain/filecoin/src/address/fil_address.dart';
+import 'package:on_chain/filecoin/src/network/filecoin_network.dart';
 
 /// Address converter for Filecoin and Ethereum interoperability
 class FilecoinAddressConverter {
@@ -58,7 +59,10 @@ class FilecoinAddressConverter {
   }
 
   /// Convert Ethereum address to Filecoin delegated address
-  static FilecoinAddress convertFromEthereum(ETHAddress ethereumAddress) {
+  static FilecoinAddress convertFromEthereum(
+    ETHAddress ethereumAddress, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     // Convert Ethereum address to delegated Filecoin address
     // This uses the Ethereum Address Manager actor ID (10)
     final payload = BytesUtils.fromHexString(ethereumAddress.address.substring(2));
@@ -67,13 +71,17 @@ class FilecoinAddressConverter {
       type: FilecoinAddressType.delegated,
       actorId: FilecoinAddress.ethereumAddressManagerActorId,
       payload: payload,
+      network: network,
     );
   }
 
   /// Convert Ethereum address string to Filecoin delegated address string
-  static String convertFromEthereumString(String ethereumAddressString) {
+  static String convertFromEthereumString(
+    String ethereumAddressString, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     final ethAddress = ETHAddress(ethereumAddressString);
-    final filecoinAddress = convertFromEthereum(ethAddress);
+    final filecoinAddress = convertFromEthereum(ethAddress, network: network);
     return filecoinAddress.toAddress();
   }
 

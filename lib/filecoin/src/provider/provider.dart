@@ -2,14 +2,21 @@ import 'dart:async';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/filecoin/src/provider/core/request.dart';
 import 'package:on_chain/filecoin/src/provider/service/service.dart';
+import 'package:on_chain/filecoin/src/network/filecoin_network.dart';
 
 /// Facilitates communication with the Filecoin network using JSON-RPC
 class FilecoinProvider extends BaseProvider<FilecoinRequestDetails> {
   /// The underlying Filecoin service provider used for network communication
   final FilecoinServiceProvider rpc;
 
+  /// The Filecoin network this provider is connected to
+  final FilecoinNetwork network;
+
   /// Constructs a new [FilecoinProvider] instance with the specified [rpc] service provider
-  FilecoinProvider(this.rpc);
+  FilecoinProvider(
+    this.rpc, {
+    this.network = FilecoinNetwork.mainnet,
+  });
 
   /// The unique identifier for each JSON-RPC request
   int _id = 0;

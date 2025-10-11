@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/filecoin/src/address/fil_address.dart';
 import 'package:on_chain/filecoin/src/transaction/fil_transaction.dart';
+import 'package:on_chain/filecoin/src/network/filecoin_network.dart';
 
 /// Signature types for Filecoin
 enum FilecoinSignatureType {
@@ -85,17 +86,23 @@ class FilecoinSigner {
   }
 
   /// Create address from private key for SECP256k1
-  static FilecoinAddress createSecp256k1Address(List<int> privateKey) {
+  static FilecoinAddress createSecp256k1Address(
+    List<int> privateKey, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     final secp256k1 = Secp256k1PrivateKey.fromBytes(privateKey);
     final publicKey = secp256k1.publicKey.uncompressed;
-    return FilecoinAddress.fromSecp256k1PublicKey(publicKey);
+    return FilecoinAddress.fromSecp256k1PublicKey(publicKey, network: network);
   }
 
   /// Create delegated address from private key
-  static FilecoinAddress createDelegatedAddress(List<int> privateKey) {
+  static FilecoinAddress createDelegatedAddress(
+    List<int> privateKey, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     final secp256k1 = Secp256k1PrivateKey.fromBytes(privateKey);
     final publicKey = secp256k1.publicKey.uncompressed;
-    return FilecoinAddress.fromDelegatedPublicKey(publicKey);
+    return FilecoinAddress.fromDelegatedPublicKey(publicKey, network: network);
   }
 
   /// Verify a signature (simplified - always returns true for now)

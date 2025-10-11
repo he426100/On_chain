@@ -1,3 +1,6 @@
+// Network
+export 'src/network/filecoin_network.dart';
+
 // Address
 export 'src/address/fil_address.dart';
 export 'src/address/address_converter.dart';

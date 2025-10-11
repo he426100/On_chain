@@ -1,4 +1,5 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
+import '../network/filecoin_network.dart';
 
 /// Filecoin address types
 enum FilecoinAddressType {
@@ -21,7 +22,6 @@ enum FilecoinAddressType {
 
 /// Filecoin address implementation
 class FilecoinAddress {
-  static const String prefix = 'f';
   static const int ethereumAddressManagerActorId = 10;
   static const String base32Alphabet = 'abcdefghijklmnopqrstuvwxyz234567';
   static const int checksumSize = 4;
@@ -29,26 +29,35 @@ class FilecoinAddress {
   final FilecoinAddressType type;
   final int actorId;
   final List<int> payload;
+  final FilecoinNetwork network;
 
   const FilecoinAddress({
     required this.type,
     required this.actorId,
     required this.payload,
+    this.network = FilecoinNetwork.mainnet,
   });
 
   /// Create a SECP256K1 address from public key
-  factory FilecoinAddress.fromSecp256k1PublicKey(List<int> publicKey) {
+  factory FilecoinAddress.fromSecp256k1PublicKey(
+    List<int> publicKey, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     // Use Blake2b with 20 byte output directly (same as wallet-core)
     final payload = QuickCrypto.blake2b160Hash(publicKey);
     return FilecoinAddress(
       type: FilecoinAddressType.secp256k1,
       actorId: 0,
       payload: payload,
+      network: network,
     );
   }
 
   /// Create a delegated address from public key (Ethereum-compatible)
-  factory FilecoinAddress.fromDelegatedPublicKey(List<int> publicKey) {
+  factory FilecoinAddress.fromDelegatedPublicKey(
+    List<int> publicKey, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     if (publicKey.length != 65) {
       throw ArgumentError('Extended SECP256k1 public key required for delegated address');
     }
@@ -60,14 +69,22 @@ class FilecoinAddress {
       type: FilecoinAddressType.delegated,
       actorId: ethereumAddressManagerActorId,
       payload: payload,
+      network: network,
     );
   }
 
   /// Create address from string representation
   factory FilecoinAddress.fromString(String address) {
-    if (address.length < 2 || address[0] != prefix) {
-      throw ArgumentError('Invalid Filecoin address prefix');
+    if (address.length < 2) {
+      throw ArgumentError('Invalid Filecoin address: too short');
     }
+
+    // Determine network from prefix
+    final networkPrefix = address[0];
+    if (!FilecoinNetwork.isValidPrefix(networkPrefix)) {
+      throw ArgumentError('Invalid Filecoin address prefix: $networkPrefix');
+    }
+    final network = FilecoinNetwork.fromPrefix(networkPrefix);
 
     final typeChar = address[1];
     final type = FilecoinAddressType.fromValue(int.parse(typeChar));
@@ -79,6 +96,7 @@ class FilecoinAddress {
         type: type,
         actorId: actorId,
         payload: [],
+        network: network,
       );
     }
 
@@ -116,13 +134,14 @@ class FilecoinAddress {
       type: type,
       actorId: actorId,
       payload: payload,
+      network: network,
     );
   }
 
   /// Convert to string representation
   String toAddress() {
     final buffer = StringBuffer();
-    buffer.write(prefix);
+    buffer.write(network.prefix);
     buffer.write(type.value);
 
     if (type == FilecoinAddressType.id) {
@@ -216,7 +235,10 @@ class FilecoinAddress {
   }
 
   /// Create address from bytes representation
-  factory FilecoinAddress.fromBytes(List<int> encoded) {
+  factory FilecoinAddress.fromBytes(
+    List<int> encoded, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
     // Should contain at least one byte (address type).
     if (encoded.isEmpty) {
       throw ArgumentError('Empty address bytes');
@@ -251,6 +273,7 @@ class FilecoinAddress {
           type: type,
           actorId: actorId,
           payload: [],
+          network: network,
         );
 
       case FilecoinAddressType.secp256k1:
@@ -263,6 +286,7 @@ class FilecoinAddress {
           type: type,
           actorId: 0,
           payload: withoutPrefix,
+          network: network,
         );
 
       case FilecoinAddressType.delegated:
@@ -282,6 +306,7 @@ class FilecoinAddress {
           type: type,
           actorId: actorId,
           payload: withoutPrefix.sublist(remainingPos),
+          network: network,
         );
     }
   }
