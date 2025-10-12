@@ -25,6 +25,7 @@ class FilecoinAddress {
   static const int ethereumAddressManagerActorId = 10;
   static const String base32Alphabet = 'abcdefghijklmnopqrstuvwxyz234567';
   static const int checksumSize = 4;
+  static const String prefix = 'f'; // Mainnet prefix
 
   final FilecoinAddressType type;
   final int actorId;
@@ -73,7 +74,8 @@ class FilecoinAddress {
     );
   }
 
-  /// Create address from string representation
+  /// Create address from string representation with automatic network detection
+  /// Accepts both mainnet ('f') and testnet ('t') addresses
   factory FilecoinAddress.fromString(String address) {
     if (address.length < 2) {
       throw ArgumentError('Invalid Filecoin address: too short');
