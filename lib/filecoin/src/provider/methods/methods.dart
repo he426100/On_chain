@@ -21,6 +21,7 @@ class FilecoinMethods {
   static const String gasEstimateGasLimit = 'Filecoin.GasEstimateGasLimit';
   static const String gasEstimateGasPremium = 'Filecoin.GasEstimateGasPremium';
   static const String gasEstimateFeeCap = 'Filecoin.GasEstimateFeeCap';
+  static const String gasEstimateMessageGas = 'Filecoin.GasEstimateMessageGas';
 
   /// Wallet methods
   static const String walletBalance = 'Filecoin.WalletBalance';

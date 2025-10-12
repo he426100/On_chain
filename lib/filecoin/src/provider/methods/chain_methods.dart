@@ -96,6 +96,21 @@ class FilecoinRequestEstimateGasPremium extends FilecoinRequest<String, dynamic>
   List<dynamic> toJson() => [nblocksincl, sender, gasLimit, tipSetKey];
 }
 
+/// Estimate gas for a message - fills in all unset gas fields
+class FilecoinRequestEstimateMessageGas extends FilecoinRequest<Map<String, dynamic>, Map<String, dynamic>> {
+  FilecoinRequestEstimateMessageGas(this.message, this.spec, this.tipSetKey);
+
+  final Map<String, dynamic> message;
+  final Map<String, dynamic>? spec;
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.gasEstimateMessageGas;
+
+  @override
+  List<dynamic> toJson() => [message, spec, tipSetKey];
+}
+
 /// Get version information
 class FilecoinRequestVersion extends FilecoinRequest<Map<String, dynamic>, Map<String, dynamic>> {
   FilecoinRequestVersion();
