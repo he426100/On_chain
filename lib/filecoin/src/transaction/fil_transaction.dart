@@ -61,7 +61,8 @@ class FilecoinTransaction {
   });
 
   /// Encode BigInt according to Filecoin specification
-  /// Returns empty list for zero, otherwise [0x00, ...bytes] for positive numbers
+  /// Returns empty list for zero, otherwise [0x00, ...bytes] for positive numbers (big-endian)
+  /// Matches iso-filecoin Token.toBytes() implementation
   static List<int> _encodeFilecoinBigInt(BigInt value) {
     if (value == BigInt.zero) {
       return [];
@@ -71,16 +72,21 @@ class FilecoinTransaction {
       throw ArgumentError('Negative values not supported');
     }
 
-    final result = <int>[0]; // Sign byte: 0 = positive
+    // Sign byte: 0x00 = positive, 0x01 = negative
+    final signByte = [0x00];
 
-    // Convert to bytes (big endian)
-    var temp = value;
-    while (temp > BigInt.zero) {
-      result.add((temp & BigInt.from(0xFF)).toInt());
-      temp = temp >> 8;
+    // Convert BigInt to bytes (big-endian, matching iso-filecoin)
+    var hex = value.toRadixString(16);
+    if (hex.length % 2 != 0) {
+      hex = '0$hex'; // Pad with leading zero if odd length
     }
 
-    return result;
+    final bytes = <int>[];
+    for (var i = 0; i < hex.length; i += 2) {
+      bytes.add(int.parse(hex.substring(i, i + 2), radix: 16));
+    }
+
+    return [...signByte, ...bytes];
   }
 
   /// Encode unsigned integer in CBOR format
@@ -231,7 +237,8 @@ class FilecoinTransaction {
       'GasFeeCap': gasFeeCap.toString(),
       'GasPremium': gasPremium.toString(),
       'Method': method.value,
-      'Params': params.isEmpty ? null : BytesUtils.toHexString(params, prefix: '0x'),
+      // Params must be empty string ("") not null, matching iso-filecoin
+      'Params': params.isEmpty ? '' : BytesUtils.toHexString(params, prefix: '0x'),
     };
   }
 
