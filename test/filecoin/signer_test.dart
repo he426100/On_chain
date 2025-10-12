@@ -145,8 +145,9 @@ void main() {
         privateKey: privateKey,
       );
 
-      // Signature should be 64+ bytes (signature data)
-      expect(signedTransaction.signature.data.length, greaterThanOrEqualTo(64));
+      // Signature should be exactly 65 bytes (r + s + v)
+      // 32 bytes for r, 32 bytes for s, 1 byte for recovery ID
+      expect(signedTransaction.signature.data.length, equals(65));
     });
 
     test('Different private keys produce different signatures', () {

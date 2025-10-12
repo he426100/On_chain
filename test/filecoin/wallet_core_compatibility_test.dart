@@ -135,9 +135,9 @@ void main() {
 
       // Verify signature is valid base64 and has correct length
       final signatureBytes = base64.decode(signature['Data'] as String);
-      // SECP256k1 signature: 64 bytes (r + s) without recovery id
-      // wallet-core includes recovery id (65 bytes), but blockchain_utils doesn't
-      expect(signatureBytes.length, greaterThanOrEqualTo(64));
+      // SECP256k1 signature: 65 bytes (r + s + v) with recovery id
+      // Now matches wallet-core's compact signature format
+      expect(signatureBytes.length, equals(65));
 
       // Note: The exact signature value will differ from wallet-core's test because
       // SECP256k1 signatures include a random nonce (k-value). Wallet-core uses
@@ -201,9 +201,9 @@ void main() {
 
       // Verify signature is valid base64 and has correct length
       final signatureBytes = base64.decode(signature['Data'] as String);
-      // SECP256k1 signature: 64 bytes (r + s) without recovery id
-      // wallet-core includes recovery id (65 bytes), but blockchain_utils doesn't
-      expect(signatureBytes.length, greaterThanOrEqualTo(64));
+      // SECP256k1 signature: 65 bytes (r + s + v) with recovery id
+      // Now matches wallet-core's compact signature format
+      expect(signatureBytes.length, equals(65));
 
       // Note: The exact signature value will differ from wallet-core's test because
       // SECP256k1 signatures include a random nonce (k-value). Wallet-core uses

@@ -62,12 +62,19 @@ class FilecoinSigner {
     // Hash the CID with Blake2b-256 (as per Filecoin specification)
     final messageHash = QuickCrypto.blake2b256Hash(cid);
 
-    // Sign with SECP256k1
-    final signer = Secp256k1Signer.fromKeyBytes(privateKey);
-    final signature = signer.signConst(messageHash, hashMessage: false);
+    // Sign with SECP256k1 and get recovery ID
+    // Filecoin requires 65-byte compact signature format: r (32) + s (32) + v (1)
+    final signingKey = Secp256k1SigningKey.fromBytes(keyBytes: privateKey);
+    final signatureWithRecovery = signingKey.signConst(digest: messageHash);
 
-    // Create signature data - the signature is already in the correct format
-    final signatureData = signature;
+    // Extract signature components
+    final sig = signatureWithRecovery.item1; // ECDSASignature
+    final recoveryId = signatureWithRecovery.item2; // recovery ID (0-3)
+
+    // Build 65-byte compact signature
+    final rBytes = BigintUtils.toBytes(sig.r, length: 32);
+    final sBytes = BigintUtils.toBytes(sig.s, length: 32);
+    final signatureData = [...rBytes, ...sBytes, recoveryId];
 
     // Determine signature type based on sender address
     final signatureType = transaction.from.type == FilecoinAddressType.delegated
