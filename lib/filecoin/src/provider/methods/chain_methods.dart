@@ -65,6 +65,37 @@ class FilecoinRequestEstimateGasLimit extends FilecoinRequest<int, dynamic> {
   List<dynamic> toJson() => [message, tipSetKey];
 }
 
+/// Estimate gas fee cap for a message
+class FilecoinRequestEstimateGasFeeCap extends FilecoinRequest<String, dynamic> {
+  FilecoinRequestEstimateGasFeeCap(this.message, this.maxQueueBlks, this.tipSetKey);
+
+  final Map<String, dynamic> message;
+  final int maxQueueBlks;
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.gasEstimateFeeCap;
+
+  @override
+  List<dynamic> toJson() => [message, maxQueueBlks, tipSetKey];
+}
+
+/// Estimate gas premium for a message
+class FilecoinRequestEstimateGasPremium extends FilecoinRequest<String, dynamic> {
+  FilecoinRequestEstimateGasPremium(this.nblocksincl, this.sender, this.gasLimit, this.tipSetKey);
+
+  final int nblocksincl;
+  final String sender;
+  final int gasLimit;
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.gasEstimateGasPremium;
+
+  @override
+  List<dynamic> toJson() => [nblocksincl, sender, gasLimit, tipSetKey];
+}
+
 /// Get version information
 class FilecoinRequestVersion extends FilecoinRequest<Map<String, dynamic>, Map<String, dynamic>> {
   FilecoinRequestVersion();
