@@ -18,7 +18,6 @@ void main() {
 
       // Should extract the result value from JSON-RPC response
       expect(balance, '98999830735399858421');
-      print('[TEST] Balance parsed correctly: $balance');
     });
 
     test('Parse nonce from JSON-RPC 2.0 response', () async {
@@ -32,7 +31,6 @@ void main() {
       );
 
       expect(nonce, 0);
-      print('[TEST] Nonce parsed correctly: $nonce');
     });
 
     test('Parse ChainHead from JSON-RPC 2.0 response', () async {
@@ -47,7 +45,6 @@ void main() {
 
       expect(chainHead, isA<Map<String, dynamic>>());
       expect(chainHead['Height'], 12345);
-      print('[TEST] ChainHead parsed correctly: $chainHead');
     });
   });
 }

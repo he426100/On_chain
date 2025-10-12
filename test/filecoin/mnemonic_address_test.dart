@@ -1,16 +1,16 @@
-/// Tests to ensure that the same mnemonic generates the same Filecoin addresses
-/// in both On_chain and wallet-core projects.
-///
-/// This test validates the complete derivation path:
-/// mnemonic → seed → private key → public key → address
-///
-/// Key verification points:
-/// 1. BIP39 mnemonic to seed (with/without passphrase)
-/// 2. BIP32/BIP44 derivation path: m/44'/461'/0'/0/0
-/// 3. SECP256k1 key generation
-/// 4. Public key format (uncompressed extended)
-/// 5. Filecoin address generation (SECP256K1 type)
-/// 6. Filecoin delegated address (EVM-compatible)
+// Tests to ensure that the same mnemonic generates the same Filecoin addresses
+// in both On_chain and wallet-core projects.
+//
+// This test validates the complete derivation path:
+// mnemonic → seed → private key → public key → address
+//
+// Key verification points:
+// 1. BIP39 mnemonic to seed (with/without passphrase)
+// 2. BIP32/BIP44 derivation path: m/44'/461'/0'/0/0
+// 3. SECP256k1 key generation
+// 4. Public key format (uncompressed extended)
+// 5. Filecoin address generation (SECP256K1 type)
+// 6. Filecoin delegated address (EVM-compatible)
 
 import 'package:test/test.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -46,12 +46,6 @@ void main() {
       // You can verify by running wallet-core's coin_address_derivation_test
       expect(address.type, equals(FilecoinAddressType.secp256k1));
       expect(address.toAddress().startsWith('f1'), isTrue);
-
-      print('Mnemonic: $mnemonic');
-      print('Derivation path: $derivationPath');
-      print('Private key: ${BytesUtils.toHexString(privateKey)}');
-      print('Public key: ${BytesUtils.toHexString(publicKey)}');
-      print('Filecoin address: ${address.toAddress()}');
     });
 
     test('Standard mnemonic to delegated address - matches wallet-core', () {
@@ -81,10 +75,6 @@ void main() {
       expect(address.type, equals(FilecoinAddressType.delegated));
       expect(address.toAddress().startsWith('f410'), isTrue);
       expect(address.actorId, equals(FilecoinAddress.ethereumAddressManagerActorId));
-
-      print('Mnemonic: $mnemonic');
-      print('Derivation path: $derivationPath');
-      print('Filecoin delegated address: ${address.toAddress()}');
     });
 
     test('Mnemonic with passphrase - matches wallet-core', () {
@@ -114,11 +104,6 @@ void main() {
 
       expect(secp256k1Address.type, equals(FilecoinAddressType.secp256k1));
       expect(delegatedAddress.type, equals(FilecoinAddressType.delegated));
-
-      print('Mnemonic: $mnemonic');
-      print('Passphrase: $passphrase');
-      print('SECP256K1 address: ${secp256k1Address.toAddress()}');
-      print('Delegated address: ${delegatedAddress.toAddress()}');
     });
 
     test('Multiple account indices - matches wallet-core pattern', () {
@@ -140,7 +125,6 @@ void main() {
         final address = FilecoinAddress.fromSecp256k1PublicKey(publicKey);
 
         expect(address.toAddress().startsWith('f1'), isTrue);
-        print('Account $i: ${address.toAddress()}');
       }
     });
 
@@ -159,12 +143,6 @@ void main() {
       // Expected address from wallet-core
       const expectedAddress = 'f1qsx7qwiojh5duxbxhbqgnlyx5hmpcf7mcz5oxsy';
       expect(address.toAddress(), equals(expectedAddress));
-
-      print('Known test vector verification:');
-      print('Private key: $privateKeyHex');
-      print('Expected address: $expectedAddress');
-      print('Actual address: ${address.toAddress()}');
-      print('✓ Addresses match!');
     });
 
     test('Verify BIP32 derivation compatibility', () {
@@ -179,8 +157,6 @@ void main() {
       final expectedSeedHex = '5eb00bbddcf069084889a8ab9155568165f5c453ccb85e70811aaed6f6da5fc19a5ac40b389cd370d086206dec8aa6c43daea6690f20ad3d8d48b2d2ce9e38e4';
       expect(BytesUtils.toHexString(seed), equals(expectedSeedHex));
 
-      print('BIP39 seed generation verified ✓');
-
       // Derive Filecoin address
       final bip32 = Bip32Slip10Secp256k1.fromSeed(seed);
       final childKey = bip32.derivePath("m/44'/461'/0'/0/0");
@@ -190,7 +166,7 @@ void main() {
       final publicKey = secp256k1PrivKey.publicKey.uncompressed;
       final address = FilecoinAddress.fromSecp256k1PublicKey(publicKey);
 
-      print('Filecoin address from "abandon..." mnemonic: ${address.toAddress()}');
+      expect(address.toAddress(), isNotEmpty);
     });
 
     test('Cross-verify with FilecoinSigner helper', () {
@@ -213,26 +189,6 @@ void main() {
 
       // Both methods should produce the same address
       expect(signerAddress.toAddress(), equals(manualAddress.toAddress()));
-
-      print('Manual address: ${manualAddress.toAddress()}');
-      print('Signer address: ${signerAddress.toAddress()}');
-      print('✓ Both methods produce identical addresses');
-    });
-  });
-
-  group('Compatibility Checklist', () {
-    test('Summary - Key compatibility points verified', () {
-      print('\n=== Filecoin Address Derivation Compatibility ===');
-      print('✓ BIP39: Mnemonic to seed generation');
-      print('✓ BIP32: Hierarchical deterministic derivation (m/44\'/461\'/0\'/0/0)');
-      print('✓ SECP256k1: Private/public key generation');
-      print('✓ Public key format: Uncompressed extended (65 bytes)');
-      print('✓ Address type: SECP256K1 (type 1) and Delegated (type 4)');
-      print('✓ Hash function: Blake2b for address payload');
-      print('✓ Encoding: Base32 with custom Filecoin alphabet');
-      print('✓ Checksum: 4-byte Blake2b hash');
-      print('✓ Known test vector: Verified against wallet-core');
-      print('\nAll compatibility checks passed! ✓');
     });
   });
 }
