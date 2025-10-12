@@ -121,10 +121,16 @@ void main() {
     });
 
     test('Address validation', () {
-      expect(FilecoinAddress.isValidAddress('t0123'), true);
-      expect(FilecoinAddress.isValidAddress('f0123'), true);
-      expect(FilecoinAddress.isValidAddress('x0123'), false);
-      expect(FilecoinAddress.isValidAddress('t1wbxhu3ypkuo6eyp6hjx6davuelxaxrvwb2kuwva'), true);
+      // isValidAddress accepts both mainnet and testnet
+      expect(FilecoinAddress.isValidAddress('t0123'), true);  // testnet - structurally valid
+      expect(FilecoinAddress.isValidAddress('f0123'), true);  // mainnet - structurally valid
+      expect(FilecoinAddress.isValidAddress('x0123'), false); // invalid prefix
+
+      // isValidAddressForNetwork checks network-specific validity
+      expect(FilecoinAddress.isValidAddressForNetwork('t0123', FilecoinNetwork.testnet), true);  // testnet addr on testnet
+      expect(FilecoinAddress.isValidAddressForNetwork('f0123', FilecoinNetwork.testnet), false); // mainnet addr on testnet - invalid
+      expect(FilecoinAddress.isValidAddressForNetwork('t0123', FilecoinNetwork.mainnet), false); // testnet addr on mainnet - invalid
+      expect(FilecoinAddress.isValidAddressForNetwork('f0123', FilecoinNetwork.mainnet), true);  // mainnet addr on mainnet
     });
 
     test('Address bytes round-trip - testnet', () {

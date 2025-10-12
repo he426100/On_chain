@@ -33,10 +33,11 @@ void filecoinTestnetExample() {
 
   // Validate testnet addresses
   const validTestnetAddress = 't0456';
-  const invalidTestnetAddress = 'f0456'; // mainnet address
-  debugPrint('\nIs "$validTestnetAddress" valid testnet? ${FilecoinAddress.isValidAddress(validTestnetAddress)}');
+  const invalidMainnetAddress = 'f0456'; // mainnet address is invalid on testnet
+  debugPrint('\nIs "$validTestnetAddress" valid on testnet? ${FilecoinAddress.isValidAddressForNetwork(validTestnetAddress, FilecoinNetwork.testnet)}');
+  debugPrint('Is "$invalidMainnetAddress" valid on testnet? ${FilecoinAddress.isValidAddressForNetwork(invalidMainnetAddress, FilecoinNetwork.testnet)}');
 
-  // Parse mainnet address (should still work)
+  // Parse mainnet address
   final mainnetAddress = FilecoinAddress.fromString('f0789');
   debugPrint('Parsed Mainnet Address: ${mainnetAddress.toAddress()}');
   debugPrint('Network: ${mainnetAddress.network.name}');
@@ -131,6 +132,8 @@ void filecoinTestnetTransactionExample() {
   // Convert to JSON for submission to testnet
   final signedJson = signedTransaction.toJson();
   debugPrint('\nSigned Transaction JSON (for testnet RPC submission):');
+  debugPrint('Message: ${signedJson['Message']}');
+  debugPrint('Signature: ${signedJson['Signature']}');
   debugPrint('Ready to submit to: ${FilecoinNetwork.testnet.defaultRpcUrl}');
 
   debugPrint('\n');

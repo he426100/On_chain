@@ -233,13 +233,13 @@ void main() {
   ];
 
   // Ported from wallet-core AddressTests.cpp lines 61-77
+  // Modified: wallet-core only tests mainnet, this tests network-agnostic validation
   const invalidAddresses = [
     '',
     'f0-1', // Negative :)
     'f018446744073709551616', // Greater than max uint64_t
     'f418446744073709551615', // No "f" separator
     'f4f77777777vnmsana', // Empty Actor ID
-    't15ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq', // Test net
     'a15ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq', // Unknown net
     'f95ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq', // Unknown address type
     // Invalid checksum cases
@@ -426,6 +426,35 @@ void main() {
           reason: 'Should throw for: $address',
         );
       }
+    });
+  });
+
+  // Additional test: Network-specific validation
+  group('FilecoinAddress - Network Validation', () {
+    test('Testnet addresses are valid on testnet only', () {
+      const testnetAddr = 't15ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq';
+
+      // Structurally valid address
+      expect(FilecoinAddress.isValidAddress(testnetAddr), true);
+
+      // Valid on testnet
+      expect(FilecoinAddress.isValidAddressForNetwork(testnetAddr, FilecoinNetwork.testnet), true);
+
+      // Invalid on mainnet
+      expect(FilecoinAddress.isValidAddressForNetwork(testnetAddr, FilecoinNetwork.mainnet), false);
+    });
+
+    test('Mainnet addresses are valid on mainnet only', () {
+      const mainnetAddr = 'f15ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq';
+
+      // Structurally valid address
+      expect(FilecoinAddress.isValidAddress(mainnetAddr), true);
+
+      // Valid on mainnet
+      expect(FilecoinAddress.isValidAddressForNetwork(mainnetAddr, FilecoinNetwork.mainnet), true);
+
+      // Invalid on testnet
+      expect(FilecoinAddress.isValidAddressForNetwork(mainnetAddr, FilecoinNetwork.testnet), false);
     });
   });
 }

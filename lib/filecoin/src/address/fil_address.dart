@@ -216,11 +216,22 @@ class FilecoinAddress {
     return _addressToBytes(type, actorId, payload);
   }
 
-  /// Validate address string
+  /// Validate address string (accepts both mainnet and testnet addresses)
   static bool isValidAddress(String address) {
     try {
       FilecoinAddress.fromString(address);
       return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Validate address string for a specific network
+  /// Returns true only if the address is valid AND matches the expected network
+  static bool isValidAddressForNetwork(String address, FilecoinNetwork network) {
+    try {
+      final addr = FilecoinAddress.fromString(address);
+      return addr.network == network;
     } catch (e) {
       return false;
     }
