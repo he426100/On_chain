@@ -13,7 +13,7 @@ class FilecoinRequestChainHead extends FilecoinRequest<Map<String, dynamic>, Map
 }
 
 /// Get nonce for an address from the message pool
-class FilecoinRequestGetNonce extends FilecoinRequest<int, int> {
+class FilecoinRequestGetNonce extends FilecoinRequest<int, dynamic> {
   FilecoinRequestGetNonce(this.address);
 
   final String address;
@@ -39,7 +39,7 @@ class FilecoinRequestMpoolPush extends FilecoinRequest<Map<String, dynamic>, Map
 }
 
 /// Get balance of an address
-class FilecoinRequestWalletBalance extends FilecoinRequest<String, String> {
+class FilecoinRequestWalletBalance extends FilecoinRequest<String, dynamic> {
   FilecoinRequestWalletBalance(this.address);
 
   final String address;
@@ -52,7 +52,7 @@ class FilecoinRequestWalletBalance extends FilecoinRequest<String, String> {
 }
 
 /// Estimate gas limit for a message
-class FilecoinRequestEstimateGasLimit extends FilecoinRequest<int, int> {
+class FilecoinRequestEstimateGasLimit extends FilecoinRequest<int, dynamic> {
   FilecoinRequestEstimateGasLimit(this.message, this.tipSetKey);
 
   final Map<String, dynamic> message;
