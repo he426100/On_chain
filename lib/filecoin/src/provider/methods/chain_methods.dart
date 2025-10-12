@@ -121,3 +121,68 @@ class FilecoinRequestVersion extends FilecoinRequest<Map<String, dynamic>, Map<S
   @override
   List<dynamic> toJson() => [];
 }
+
+/// StateSearchMsg looks back up to limit epochs in the chain for a message,
+/// and returns its receipt and the tipset where it was executed
+class FilecoinRequestStateSearchMsg extends FilecoinRequest<Map<String, dynamic>?, Map<String, dynamic>?> {
+  FilecoinRequestStateSearchMsg(this.messageCid, {this.tipSetKey, this.lookbackLimit = 100, this.allowReplaced = true});
+
+  /// The CID of the message to search for
+  final Map<String, dynamic> messageCid;
+
+  /// Optional tipset key to start search from (null means start from chain head)
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  /// Number of epochs to look back (default: 100)
+  final int lookbackLimit;
+
+  /// Allow replaced messages (default: true)
+  final bool allowReplaced;
+
+  @override
+  String get method => FilecoinMethods.stateSearchMsg;
+
+  @override
+  List<dynamic> toJson() => [tipSetKey, messageCid, lookbackLimit, allowReplaced];
+}
+
+/// StateWaitMsg looks back in the chain for a message. If not found, it blocks
+/// until the message arrives on chain, and gets to the indicated confidence depth
+class FilecoinRequestStateWaitMsg extends FilecoinRequest<Map<String, dynamic>?, Map<String, dynamic>?> {
+  FilecoinRequestStateWaitMsg(this.messageCid, {this.confidence = 2, this.lookbackLimit = 100, this.allowReplaced = true});
+
+  /// The CID of the message to wait for
+  final Map<String, dynamic> messageCid;
+
+  /// Number of confirmations to wait for (default: 2)
+  final int confidence;
+
+  /// Number of epochs to look back (default: 100)
+  final int lookbackLimit;
+
+  /// Allow replaced messages (default: true)
+  final bool allowReplaced;
+
+  @override
+  String get method => FilecoinMethods.stateWaitMsg;
+
+  @override
+  List<dynamic> toJson() => [messageCid, confidence, lookbackLimit, allowReplaced];
+}
+
+/// StateGetActor returns the indicated actor's nonce and balance
+class FilecoinRequestStateGetActor extends FilecoinRequest<Map<String, dynamic>, Map<String, dynamic>> {
+  FilecoinRequestStateGetActor(this.address, {this.tipSetKey});
+
+  /// The address of the actor to query
+  final String address;
+
+  /// Optional tipset key (null means use chain head)
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.stateGetActor;
+
+  @override
+  List<dynamic> toJson() => [address, tipSetKey];
+}
