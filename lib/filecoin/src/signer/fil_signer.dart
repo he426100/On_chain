@@ -56,12 +56,14 @@ class FilecoinSigner {
     required FilecoinTransaction transaction,
     required List<int> privateKey,
   }) {
-    // Get CBOR-encoded message bytes
-    final messageBytes = transaction.getMessageBytes();
+    // Get CID (Content Identifier) for the transaction
+    // CID = [prefix] + Blake2b-256(CBOR-encoded message)
+    final cid = transaction.getCid();
 
-    // Hash the message with Blake2b-256 (as per Filecoin specification)
-    // This is what Filecoin nodes use to verify signatures
-    final messageHash = QuickCrypto.blake2b256Hash(messageBytes);
+    // Hash the CID with Blake2b-256 (as per Filecoin specification)
+    // This double-hashing is intentional and matches the reference implementation
+    // See: iso-filecoin wallet.js signMessage() and sign()
+    final messageHash = QuickCrypto.blake2b256Hash(cid);
 
     // Sign with SECP256k1 and get recovery ID
     // Filecoin requires 65-byte compact signature format: r (32) + s (32) + v (1)
