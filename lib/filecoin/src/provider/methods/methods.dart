@@ -18,6 +18,7 @@ class FilecoinMethods {
   static const String stateCall = 'Filecoin.StateCall';
   static const String stateSearchMsg = 'Filecoin.StateSearchMsg';
   static const String stateWaitMsg = 'Filecoin.StateWaitMsg';
+  static const String stateListMessages = 'Filecoin.StateListMessages';
 
   /// Gas estimation
   static const String gasEstimateGasLimit = 'Filecoin.GasEstimateGasLimit';
