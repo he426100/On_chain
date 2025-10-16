@@ -395,6 +395,67 @@ class FilecoinAddress {
     }
   }
 
+  /// Convert ID address to Ethereum ID mask address (0xFF...)
+  /// Only works for ID addresses (f0...)
+  /// Returns null if address is not an ID address
+  String? toIdMaskAddress() {
+    if (type != FilecoinAddressType.id) {
+      return null;
+    }
+
+    // Create 20-byte array
+    final buf = List<int>.filled(20, 0);
+
+    // Set first byte to 0xFF
+    buf[0] = 0xFF;
+
+    // Set the actor ID in the last 8 bytes (big endian)
+    for (int i = 0; i < 8; i++) {
+      buf[19 - i] = (actorId >> (i * 8)) & 0xFF;
+    }
+
+    // Apply EIP-55 checksum
+    return _checksumEthAddress('0x${BytesUtils.toHexString(buf)}');
+  }
+
+  /// Compute EIP-55 checksum for Ethereum address
+  static String _checksumEthAddress(String address) {
+    final addr = address.toLowerCase().replaceFirst('0x', '');
+    final hash = BytesUtils.toHexString(QuickCrypto.keccack256Hash(addr.codeUnits));
+
+    final result = StringBuffer('0x');
+    for (int i = 0; i < addr.length; i++) {
+      final char = addr[i];
+      if (int.tryParse(char) != null) {
+        result.write(char);
+      } else {
+        final hashChar = hash[i];
+        final hashValue = int.parse(hashChar, radix: 16);
+        result.write(hashValue >= 8 ? char.toUpperCase() : char);
+      }
+    }
+    return result.toString();
+  }
+
+  /// Convert delegated address to Ethereum address
+  /// Only works for delegated addresses (f4...) with EAM actor ID
+  /// Returns null if address cannot be converted
+  String? toEthAddress() {
+    if (type != FilecoinAddressType.delegated) {
+      return null;
+    }
+
+    if (actorId != ethereumAddressManagerActorId) {
+      return null;
+    }
+
+    if (payload.length != 20) {
+      return null;
+    }
+
+    return _checksumEthAddress('0x${BytesUtils.toHexString(payload)}');
+  }
+
   @override
   String toString() => toAddress();
 

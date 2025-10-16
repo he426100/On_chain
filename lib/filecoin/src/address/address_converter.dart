@@ -8,6 +8,123 @@ class FilecoinAddressConverter {
   /// Actor ID length when encoded as big endian uint64
   static const int actorIdEncodedLength = 8;
 
+  /// Check if string is a valid Ethereum address
+  /// Based on reference implementation from iso-filecoin
+  /// See: https://github.com/filecoin-project/iso-filecoin/blob/main/packages/iso-filecoin/src/address.js
+  static bool isEthAddress(String address) {
+    if (!RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address)) return false;
+    if (address.toLowerCase() == address) return true;
+    return _checksumEthAddress(address) == address;
+  }
+
+  /// Check if address is an Ethereum ID mask address
+  /// ID mask addresses have format: 0xFF + 11 zero bytes + 8 bytes for actor ID
+  static bool isIdMaskAddress(String address) {
+    if (!isEthAddress(address)) {
+      return false;
+    }
+    final bytes = BytesUtils.fromHexString(address.substring(2));
+    if (bytes.length != 20) return false;
+
+    // Check if first byte is 0xFF and next 11 bytes are zero
+    if (bytes[0] != 0xFF) return false;
+    for (int i = 1; i < 12; i++) {
+      if (bytes[i] != 0) return false;
+    }
+    return true;
+  }
+
+  /// Compute EIP-55 checksum for Ethereum address
+  static String _checksumEthAddress(String address) {
+    final addr = address.toLowerCase().replaceFirst('0x', '');
+    final hash = BytesUtils.toHexString(QuickCrypto.keccack256Hash(addr.codeUnits));
+
+    final result = StringBuffer('0x');
+    for (int i = 0; i < addr.length; i++) {
+      final char = addr[i];
+      if (int.tryParse(char) != null) {
+        result.write(char);
+      } else {
+        final hashChar = hash[i];
+        final hashValue = int.parse(hashChar, radix: 16);
+        result.write(hashValue >= 8 ? char.toUpperCase() : char);
+      }
+    }
+    return result.toString();
+  }
+
+  /// Convert Ethereum address to Filecoin address
+  /// Automatically detects ID mask addresses (f0) vs delegated addresses (f4)
+  static FilecoinAddress fromEthAddress(
+    String address, {
+    FilecoinNetwork network = FilecoinNetwork.mainnet,
+  }) {
+    if (!isEthAddress(address)) {
+      throw ArgumentError('Invalid Ethereum address: $address');
+    }
+
+    if (isIdMaskAddress(address)) {
+      return _fromIdMaskAddress(address, network);
+    }
+    return _fromDelegatedEthAddress(address, network);
+  }
+
+  /// Create ID address from ID mask Ethereum address
+  static FilecoinAddress _fromIdMaskAddress(String address, FilecoinNetwork network) {
+    if (!isIdMaskAddress(address)) {
+      throw ArgumentError('Invalid Ethereum ID mask address: $address');
+    }
+
+    final bytes = BytesUtils.fromHexString(address.substring(2));
+    if (bytes.length != 20) {
+      throw ArgumentError('Invalid Ethereum payload length: ${bytes.length} should be 20');
+    }
+
+    // Extract the actor ID from the last 8 bytes (big endian)
+    int actorId = 0;
+    for (int i = 12; i < 20; i++) {
+      actorId = (actorId << 8) | bytes[i];
+    }
+
+    return FilecoinAddress(
+      type: FilecoinAddressType.id,
+      actorId: actorId,
+      payload: [],
+      network: network,
+    );
+  }
+
+  /// Create delegated address from Ethereum address
+  static FilecoinAddress _fromDelegatedEthAddress(String address, FilecoinNetwork network) {
+    if (!isEthAddress(address)) {
+      throw ArgumentError('Invalid Ethereum address: $address');
+    }
+
+    if (isIdMaskAddress(address)) {
+      throw ArgumentError('Cannot convert Ethereum ID mask address to delegated: $address');
+    }
+
+    final bytes = BytesUtils.fromHexString(address.substring(2));
+    if (bytes.length != 20) {
+      throw ArgumentError('Invalid Ethereum payload length: ${bytes.length} should be 20');
+    }
+
+    return FilecoinAddress(
+      type: FilecoinAddressType.delegated,
+      actorId: FilecoinAddress.ethereumAddressManagerActorId,
+      payload: bytes,
+      network: network,
+    );
+  }
+
+  /// Convert Filecoin address to Ethereum address
+  /// Only works for ID addresses (f0...) and Delegated addresses (f4...)
+  /// This is an alias for toEthAddress for compatibility
+  static String? toEthAddress(FilecoinAddress address) {
+    final ethAddr = convertToEthereum(address);
+    return ethAddr?.toString();
+  }
+
   /// Convert Filecoin address to Ethereum address
   /// Only works for ID addresses (f0...) and Delegated addresses (f4...)
   /// Returns null if conversion is not possible
