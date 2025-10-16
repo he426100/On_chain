@@ -20,6 +20,7 @@ export 'src/provider/core/request.dart';
 export 'src/provider/service/service.dart';
 export 'src/provider/methods/methods.dart';
 export 'src/provider/methods/chain_methods.dart';
+export 'src/provider/methods/eth_methods.dart';
 export 'src/provider/models/models.dart';
 
 // Message
