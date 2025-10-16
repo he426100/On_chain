@@ -18,3 +18,12 @@ export 'src/provider/service/service.dart';
 export 'src/provider/methods/methods.dart';
 export 'src/provider/methods/chain_methods.dart';
 export 'src/provider/models/models.dart';
+
+// Token
+export 'src/token/fil_token.dart';
+
+// Signature
+export 'src/signature/fil_signature.dart';
+
+// Wallet
+export 'src/wallet/fil_wallet.dart';
