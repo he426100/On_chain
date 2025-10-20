@@ -19,6 +19,7 @@ class FilecoinMethods {
   static const String stateSearchMsg = 'Filecoin.StateSearchMsg';
   static const String stateWaitMsg = 'Filecoin.StateWaitMsg';
   static const String stateListMessages = 'Filecoin.StateListMessages';
+  static const String stateReadState = 'Filecoin.StateReadState';
 
   /// Gas estimation
   static const String gasEstimateGasLimit = 'Filecoin.GasEstimateGasLimit';
@@ -29,6 +30,11 @@ class FilecoinMethods {
   /// Wallet methods
   static const String walletBalance = 'Filecoin.WalletBalance';
   static const String walletSign = 'Filecoin.WalletSign';
+
+  /// Multisig methods
+  static const String msigGetPending = 'Filecoin.MsigGetPending';
+  static const String msigGetAvailableBalance = 'Filecoin.MsigGetAvailableBalance';
+  static const String msigGetVested = 'Filecoin.MsigGetVested';
 
   /// Version and network info
   static const String version = 'Filecoin.Version';
