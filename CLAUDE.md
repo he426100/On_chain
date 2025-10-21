@@ -84,7 +84,7 @@ graph TD
 
 | 模块 | 路径 | 职责 | 入口文件 | 测试目录 |
 |------|------|------|----------|----------|
-| **Ethereum** | `lib/ethereum/` | Ethereum 网络支持（Legacy, EIP1559, EIP2930, EIP712, EIP4361） | `ethereum.dart` | `test/etherum/` |
+| **Ethereum** | `lib/ethereum/` | Ethereum 网络支持（Legacy, EIP1559, EIP2930, EIP712, EIP4361） | `ethereum.dart` | `test/ethereum/` |
 | **Tron** | `lib/tron/` | Tron 网络支持，Protobuf 序列化 | `tron.dart` | `test/tron/` |
 | **Solana** | `lib/solana/` | Solana 网络支持，Borsh 序列化，Metaplex 集成 | `solana.dart` | 无独立测试 |
 | **Filecoin** | `lib/filecoin/` | Filecoin 网络支持，多类型地址系统 | `filecoin.dart` | `test/filecoin/` |
@@ -145,7 +145,7 @@ dart format .
 
 ```
 test/
-├── etherum/          # Ethereum 测试（注：拼写为 etherum）
+├── ethereum/          # Ethereum 测试
 │   ├── transaction_test.dart
 │   ├── sign_test.dart
 │   ├── rlp_encode_decode_test.dart

@@ -152,7 +152,7 @@ final tx = ETHTransactionBuilder.eip1559(
 ## 测试与质量
 
 ### 测试目录
-`/home/mrpzx/git/flutter/wallet/On_chain/test/etherum/`（注意拼写）
+`/home/mrpzx/git/flutter/wallet/On_chain/test/ethereum/`
 
 ### 测试文件
 - `transaction_test.dart`：交易序列化与签名测试
@@ -164,10 +164,10 @@ final tx = ETHTransactionBuilder.eip1559(
 ### 运行测试
 ```bash
 # 运行所有 Ethereum 测试
-dart test test/etherum/
+dart test test/ethereum/
 
 # 运行特定测试
-dart test test/etherum/transaction_test.dart
+dart test test/ethereum/transaction_test.dart
 ```
 
 ### 示例代码
