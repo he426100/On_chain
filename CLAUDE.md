@@ -1,240 +1,290 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件为 Claude Code (claude.ai/code) 在此代码库中工作时提供指引。
 
-## Overview
+## 变更记录 (Changelog)
 
-On_chain is a cross-platform Dart/Flutter package for blockchain development supporting Ethereum, Tron, Solana, and Filecoin networks. The package provides transaction creation, smart contract interaction, signing, and RPC communication capabilities.
+### 2025-10-21 10:56:05
+- 完成全仓架构扫描与文档初始化
+- 新增模块化架构图（Mermaid）
+- 为 6 个主模块生成详细文档
+- 覆盖率：核心模块 100%，示例代码已记录
 
-## Development Commands
+---
 
-### Testing
+## 项目愿景
+
+On_chain 是一个跨平台的 Dart/Flutter 区块链开发包，旨在为开发者提供统一、高效的多链开发体验。项目支持 Ethereum、Tron、Solana 和 Filecoin 四大主流区块链网络，并提供完整的交易创建、智能合约交互、签名和 RPC 通信能力。
+
+**核心价值**：
+- 统一的 API 设计模式，降低多链开发学习曲线
+- 类型安全的 Dart 实现，减少运行时错误
+- 完整的 HD 钱包支持，符合 BIP32/39/44 标准
+- 丰富的预构建指令和合约模板
+
+---
+
+## 架构总览
+
+### 模块结构图
+
+```mermaid
+graph TD
+    Root["(根) On_chain 跨链开发包"] --> Ethereum["ethereum/"];
+    Root --> Tron["tron/"];
+    Root --> Solana["solana/"];
+    Root --> Filecoin["filecoin/"];
+    Root --> Solidity["solidity/"];
+    Root --> BCS["bcs/"];
+    Root --> Utils["utils/"];
+
+    Ethereum --> EthAddress["地址管理"];
+    Ethereum --> EthKeys["密钥管理"];
+    Ethereum --> EthTx["交易处理"];
+    Ethereum --> EthRPC["RPC 通信"];
+
+    Tron --> TronAddress["地址管理"];
+    Tron --> TronProtobuf["Protobuf 序列化"];
+    Tron --> TronProvider["Provider 层"];
+
+    Solana --> SolAddress["地址管理"];
+    Solana --> SolInstructions["预构建指令"];
+    Solana --> SolRPC["RPC 客户端"];
+
+    Filecoin --> FilAddress["多类型地址"];
+    Filecoin --> FilSigner["签名器"];
+    Filecoin --> FilProvider["Provider 层"];
+
+    Solidity --> ABI["ABI 编解码"];
+    Solidity --> Contract["合约交互"];
+    Solidity --> EIP712["EIP712 签名"];
+
+    BCS --> Serialization["BCS 序列化"];
+    BCS --> Move["Move 类型"];
+
+    click Ethereum "./lib/ethereum/CLAUDE.md" "查看 Ethereum 模块文档"
+    click Tron "./lib/tron/CLAUDE.md" "查看 Tron 模块文档"
+    click Solana "./lib/solana/CLAUDE.md" "查看 Solana 模块文档"
+    click Filecoin "./lib/filecoin/CLAUDE.md" "查看 Filecoin 模块文档"
+    click Solidity "./lib/solidity/CLAUDE.md" "查看 Solidity 模块文档"
+    click BCS "./lib/bcs/CLAUDE.md" "查看 BCS 模块文档"
+    click Utils "./lib/utils/CLAUDE.md" "查看 Utils 模块文档"
+```
+
+### 架构原则
+
+1. **按区块链网络分层**：每个网络独立成模块，互不干扰
+2. **统一的 RPC 模式**：所有网络遵循 Service → Provider → Request 三层架构
+3. **共享基础设施**：密码学原语由 `blockchain_utils` 包提供
+4. **类型驱动开发**：充分利用 Dart 类型系统保证安全性
+
+---
+
+## 模块索引
+
+| 模块 | 路径 | 职责 | 入口文件 | 测试目录 |
+|------|------|------|----------|----------|
+| **Ethereum** | `lib/ethereum/` | Ethereum 网络支持（Legacy, EIP1559, EIP2930, EIP712, EIP4361） | `ethereum.dart` | `test/etherum/` |
+| **Tron** | `lib/tron/` | Tron 网络支持，Protobuf 序列化 | `tron.dart` | `test/tron/` |
+| **Solana** | `lib/solana/` | Solana 网络支持，Borsh 序列化，Metaplex 集成 | `solana.dart` | 无独立测试 |
+| **Filecoin** | `lib/filecoin/` | Filecoin 网络支持，多类型地址系统 | `filecoin.dart` | `test/filecoin/` |
+| **Solidity** | `lib/solidity/` | Solidity ABI 编解码，合约交互，EIP712 | `solidity.dart` | 无独立测试 |
+| **BCS** | `lib/bcs/` | Binary Canonical Serialization，Move 语言支持 | `serialization.dart` | `test/move/` |
+| **Utils** | `lib/utils/` | 跨模块共享工具（数字处理、Map 操作） | `utils.dart` | 无独立测试 |
+
+---
+
+## 运行与开发
+
+### 环境要求
+
+- Dart SDK: `>=3.3.0 <4.0.0`
+- 核心依赖: `blockchain_utils: ^5.2.0`（提供密码学原语）
+
+### 常用命令
+
 ```bash
-# Run all tests
+# 获取依赖
+dart pub get
+
+# 运行所有测试
 dart test
 
-# Run tests for a specific blockchain
+# 运行特定网络测试
 dart test test/ethereum/
 dart test test/tron/
-dart test test/solana/
 dart test test/filecoin/
+dart test test/move/
 
-# Run specific test file
-dart test test/ethereum/transaction_test.dart
-```
-
-### Build and Analysis
-```bash
-# Analyze code
+# 代码分析
 dart analyze
 
-# Format code
+# 代码格式化
 dart format .
-
-# Get dependencies
-dart pub get
 ```
 
-## Architecture
+### 示例代码
 
-### Directory Structure
+项目在 `example/lib/example/` 提供了丰富的示例：
+- HD 钱包生成：`ethereum/hd_wallet.dart`, `tron/hd_wallet_example.dart`, `solana/hd_wallet_example.dart`
+- 合约调用：`contract/call_example.dart`, `contract/call_with_fragment_example.dart`
+- EIP712 签名：`eip_712/v4_example.dart`, `eip_712/legacy_example.dart`
+- Filecoin 操作：`filecoin/filecoin_example.dart`, `filecoin/testnet_example.dart`
 
-The codebase is organized by blockchain network:
+---
 
-- `lib/ethereum/` - Ethereum support (Legacy, EIP1559, EIP2930, EIP712, EIP4361)
-- `lib/tron/` - Tron network support with protobuf encoding
-- `lib/solana/` - Solana support with BorshSerialization and native programs
-- `lib/filecoin/` - Filecoin support (SECP256K1, delegated addresses)
-- `lib/solidity/` - Solidity ABI encoding/decoding and contract interaction
-- `lib/bcs/` - Binary Canonical Serialization for Move language support
-- `lib/utils/` - Shared utilities
+## 测试策略
 
-### Key Components Per Network
+### 测试组织
 
-Each blockchain implementation follows a consistent pattern:
+- **单元测试**：覆盖密钥生成、地址验证、交易序列化、ABI 编解码
+- **签名验证测试**：验证交易签名的正确性和互操作性
+- **示例代码**：`example/` 目录下的代码用于展示功能，非自动化测试
 
-1. **Address** - Address creation, validation, and conversion
-   - Ethereum: `ETHAddress` (EVM-compatible)
-   - Tron: `TronAddress` (Base58Check encoding)
-   - Solana: `SolAddress` (Base58 encoding)
-   - Filecoin: `FilAddress` (multiple types: f0, f1, f4)
+### 测试文件分布
 
-2. **Keys** - Private/public key management
-   - All networks support HD wallet derivation
-   - Network-specific key formats and cryptographic operations
-
-3. **Transaction** - Transaction building, serialization, and signing
-   - Ethereum: Multiple transaction types (Legacy, EIP1559, EIP2930)
-   - Tron: Protobuf-based transaction serialization
-   - Solana: Versioned transactions with compact encoding
-   - Filecoin: CBOR-based transaction format
-
-4. **RPC Provider** - JSON-RPC communication with blockchain nodes
-   - Each network has a `Provider` class for making RPC requests
-   - Request/response models in `methods/` subdirectory
-   - Service layer abstracts HTTP/WebSocket communication
-
-5. **Contract Interaction**
-   - Ethereum/Tron: ABI-based contract calls
-   - Solana: Instruction-based program interaction with BorshSerialization
-   - Solidity ABI encoder/decoder shared across EVM chains
-
-### Solana Programs
-
-Solana has extensive pre-built instruction support in `lib/solana/src/instructions/`:
-- System Program (transfers, account creation)
-- SPL Token Program (token operations)
-- Address Lookup Table Program
-- Stake Program
-- Metaplex programs (NFTs, auctions, candy machines)
-- Custom program support via BorshSerialization
-
-### RPC Pattern
-
-All networks follow the same RPC pattern:
-```dart
-// 1. Create service (HTTP or WebSocket)
-final service = HTTPService(url);
-
-// 2. Create provider
-final provider = EthereumProvider(service);  // or TronProvider, SolanaRPCClient
-
-// 3. Make requests using typed request classes
-final request = ETHGetBalance(address: address, tag: BlockTagOrNumber.latest);
-final balance = await provider.request(request);
+```
+test/
+├── etherum/          # Ethereum 测试（注：拼写为 etherum）
+│   ├── transaction_test.dart
+│   ├── sign_test.dart
+│   ├── rlp_encode_decode_test.dart
+│   ├── keys_test.dart
+│   └── eip_4631_test.dart
+├── tron/             # Tron 测试
+│   ├── sign_test.dart
+│   ├── serialization_test.dart
+│   ├── key_address_test.dart
+│   └── json_buff_serialization_test.dart
+├── filecoin/         # Filecoin 测试（最完整）
+│   ├── address_test.dart
+│   ├── transaction_test.dart
+│   ├── signer_test.dart
+│   ├── multisig_test.dart
+│   └── ...（共 10 个测试文件）
+└── move/             # BCS/Move 测试
+    └── move_test.dart
 ```
 
-### Transaction Building Pattern
+---
 
-Ethereum uses a builder pattern for transactions:
-```dart
-// Transaction builder approach
-final transaction = ETHTransactionBuilder.eip1559(
-  // ... parameters
-);
-```
+## 编码规范
 
-Tron uses contract-based transaction creation:
-```dart
-// Contract-based approach
-final contract = TransferContract(...);
-final transaction = Transaction(rawData: TransactionRaw(...));
-```
+### Dart 风格指南
 
-Solana uses instruction composition:
-```dart
-// Instruction-based approach
-final instruction = SystemTransfer(...);
-final transaction = VersionedTransaction(...);
-```
+- 遵循 `lints: ^6.0.0` 和 `flutter_lints: ^6.0.0` 规则
+- 类名使用大驼峰（PascalCase），函数和变量使用小驼峰（camelCase）
+- 优先使用 `final` 和 `const`，避免可变状态
+- 库级导出使用 `export` 指令，保持公共 API 清晰
 
-## Important Implementation Details
+### 模块划分原则
 
-### Ethereum Transaction Types
-- Legacy transactions use RLP encoding
-- EIP1559 includes base fee and priority fee
-- EIP2930 includes access lists for gas optimization
-- All transaction types share signing logic but differ in serialization
+1. **地址 (Address)**：地址创建、验证、格式转换
+2. **密钥 (Keys)**：私钥/公钥管理、HD 钱包派生
+3. **交易 (Transaction)**：交易构建、序列化、签名
+4. **RPC/Provider**：与区块链节点通信
+5. **模型 (Models)**：数据结构定义
+6. **异常 (Exception)**：模块特定的异常类型
 
-### Tron Protobuf Encoding
-- Tron uses Google Protobuf for transaction serialization
-- Protobuf encoders/decoders are in `lib/tron/src/protbuf/`
-- Multi-signature transactions require permission updates
+### 命名约定
 
-### Solana BorshSerialization
-- Solana programs use Borsh (Binary Object Representation Serializer for Hashing)
-- Program layouts extend `ProgramLayout` base class in `lib/solana/src/borsh_serialization/core/program_layout.dart`
-- Unknown programs can be handled with `UnknownProgramLayout`
-- Custom program layouts must implement `serialize()` and `deserialize()` methods
+- Ethereum 相关类前缀：`ETH` (例：`ETHAddress`, `ETHTransactionBuilder`)
+- Tron 相关类前缀：`Tron` 或无前缀 (例：`TronAddress`, `TransferContract`)
+- Solana 相关类前缀：`Sol` 或无前缀 (例：`SolAddress`, `VersionedTransaction`)
+- Filecoin 相关类前缀：`Fil` (例：`FilAddress`, `FilSigner`)
 
-### Filecoin Addresses
-- Multiple address types: ID (f0), SECP256K1 (f1), Delegated/Ethereum-compatible (f4)
-- Custom Base32 encoding with Filecoin-specific alphabet
-- Address conversion utilities in `address_converter.dart`
+---
 
-### Contract ABI Handling
-- Solidity ABI types in `lib/solidity/abi/types/`
-- Support for tuples, arrays, fixed/dynamic types
-- EIP712 typed data signing (v1, v3, v4)
-- Fragment-based contract interaction in `lib/solidity/contract/`
+## AI 使用指引
 
-## Testing Strategy
+### 工作流建议
 
-Tests are organized by network under `test/`:
-- Unit tests for keys, addresses, serialization
-- Transaction signing and verification tests
-- ABI encoding/decoding tests
-- Integration examples (not actual tests) in `example/lib/example/`
+1. **查询架构**：先阅读本文档和对应模块的 `CLAUDE.md`
+2. **定位文件**：使用模块索引表快速找到关键文件路径
+3. **理解模式**：每个网络的 Address → Keys → Transaction → RPC 模式一致
+4. **参考示例**：`example/` 目录提供了最佳实践参考
+5. **运行测试**：修改后务必运行相关测试验证
 
-### Running Specific Tests
-```bash
-# Test specific blockchain module
-dart test test/ethereum/
-dart test test/tron/
-dart test test/solana/
-dart test test/filecoin/
+### 常见任务
 
-# Test specific functionality
-dart test test/ethereum/transaction_test.dart
-dart test test/solana/address_test.dart
-```
+| 任务 | 参考路径 |
+|------|----------|
+| 添加新的 RPC 方法 | `lib/{network}/src/rpc/methds/` 或 `lib/{network}/src/provider/methods/` |
+| 扩展交易类型 | `lib/{network}/src/transaction/` 或 `lib/{network}/src/models/contract/` |
+| 新增 Solana 指令 | `lib/solana/src/instructions/{program_name}/` |
+| 修改地址格式 | `lib/{network}/src/address/` |
+| 添加 ABI 类型 | `lib/solidity/abi/types/` |
 
-## Dependencies
+### 调试技巧
 
-Main dependency: `blockchain_utils` package (v5.2.0+) provides cryptographic primitives (ECDSA, EdDSA, hashing, BIP32/39/44) used across all blockchain implementations.
+- **序列化问题**：检查对应的编码器（RLP、Protobuf、Borsh、CBOR）
+- **签名失败**：验证密钥格式和哈希算法（Keccak256、SHA256、Blake2b）
+- **RPC 错误**：检查 `methods/` 下的请求参数类型
+- **地址无效**：确认网络特定的编码方式（Base58、Base58Check、Bech32）
 
-## Transaction Builder Pattern Details
+---
 
-### Ethereum Transaction Creation
-The `ETHTransactionBuilder` class in `lib/ethereum/src/transaction/eth_transaction_builder.dart` provides:
-- Basic transfers: `ETHTransactionBuilder(from, to, value, chainId)`
-- Contract calls: `ETHTransactionBuilder.contract(contractAddress, function, functionParams)`
-- Transaction type selection via `transactionType` parameter (Legacy, EIP1559, EIP2930)
-- Automatic gas estimation, nonce management, and signing through builder methods
-
-### Transaction Lifecycle
-1. Build transaction using appropriate builder method
-2. Set gas parameters (manually or via `estimateGas()`)
-3. Set nonce (manually or via `setNonce()`)
-4. Sign transaction with `signTransaction(privateKey)`
-5. Send via `sendTransaction()` or get raw bytes via `transaction.serialized`
-
-## Error Handling
-
-Each blockchain module has its own exception types:
-- Ethereum: `ETHPluginException` in `lib/ethereum/src/exception/exception.dart`
-- Tron: `TronPluginException`
-- Solana: `SolanaPluginException`
-- Filecoin: `FilecoinPluginException`
-
-Common error scenarios:
-- Invalid address format
-- Insufficient balance
-- Gas estimation failures
-- RPC connection errors
-- Signature validation failures
-
-## Key File Locations
-
-When making changes, these are the critical files to understand:
+## 关键技术细节
 
 ### Ethereum
-- Transaction types: `lib/ethereum/src/transaction/eth_transaction.dart`
-- Builder: `lib/ethereum/src/transaction/eth_transaction_builder.dart`
-- Provider: `lib/ethereum/src/rpc/provider/provider.dart`
-- RPC methods: `lib/ethereum/src/rpc/methds/`
+
+- **交易类型**：Legacy (RLP), EIP1559 (Base Fee + Priority Fee), EIP2930 (Access List)
+- **签名**：ECDSA (secp256k1)，支持 EIP155 防重放攻击
+- **ABI 编码**：遵循 Solidity ABI 规范，支持 tuples、arrays、动态类型
+- **EIP712**：结构化数据签名，支持 v1、v3、v4 版本
 
 ### Tron
-- Contracts: `lib/tron/src/contract/`
-- Provider: `lib/tron/src/provider/provider/provider.dart`
-- Protobuf: `lib/tron/src/protbuf/`
+
+- **序列化**：Google Protobuf
+- **地址**：Base58Check 编码，兼容 Ethereum 风格的私钥
+- **多签**：通过 `AccountPermissionUpdate` 合约实现
+- **合约类型**：包括 Transfer、TriggerSmartContract、FreezeBalance 等 20+ 种原生合约
 
 ### Solana
-- Instructions: `lib/solana/src/instructions/`
-- RPC client: `lib/solana/src/rpc/provider/provider.dart`
-- Transaction models: `lib/solana/src/models/`
+
+- **交易**：Versioned Transaction，支持 Address Lookup Tables
+- **指令**：预构建 20+ 个程序指令（System, SPL Token, Metaplex 等）
+- **序列化**：Borsh (Binary Object Representation Serializer for Hashing)
+- **自定义程序**：通过 `ProgramLayout` 基类扩展
 
 ### Filecoin
-- Provider: `lib/filecoin/src/provider/provider.dart`
-- Methods: `lib/filecoin/src/methods/`
-- Address handling: `lib/filecoin/src/address/`
+
+- **地址类型**：f0 (ID), f1 (SECP256K1), f4 (Delegated/Ethereum-compatible)
+- **序列化**：CBOR (Concise Binary Object Representation)
+- **签名**：SECP256K1 或 BLS (取决于地址类型)
+- **RPC 方法**：支持 Chain、Eth (兼容层)、Multisig 三类方法
+
+---
+
+## 文件路径速查
+
+### 核心入口文件
+
+- 总入口：`/home/mrpzx/git/flutter/wallet/On_chain/lib/on_chain.dart`
+- Ethereum：`/home/mrpzx/git/flutter/wallet/On_chain/lib/ethereum/ethereum.dart`
+- Tron：`/home/mrpzx/git/flutter/wallet/On_chain/lib/tron/tron.dart`
+- Solana：`/home/mrpzx/git/flutter/wallet/On_chain/lib/solana/solana.dart`
+- Filecoin：`/home/mrpzx/git/flutter/wallet/On_chain/lib/filecoin/filecoin.dart`
+- Solidity：`/home/mrpzx/git/flutter/wallet/On_chain/lib/solidity/solidity.dart`
+- BCS：`/home/mrpzx/git/flutter/wallet/On_chain/lib/bcs/serialization.dart`
+
+### 配置文件
+
+- 包配置：`/home/mrpzx/git/flutter/wallet/On_chain/pubspec.yaml`
+- 代码分析：`/home/mrpzx/git/flutter/wallet/On_chain/analysis_options.yaml`
+- Git 忽略：`/home/mrpzx/git/flutter/wallet/On_chain/.gitignore`
+
+---
+
+## 下一步建议
+
+当前扫描已覆盖核心模块，但以下方面可进一步深化：
+
+1. **Solana 指令细节**：`lib/solana/src/instructions/` 下有 20+ 个子程序，可为重要程序（如 Metaplex）生成独立文档
+2. **Tron 合约类型**：`lib/tron/src/models/contract/` 包含大量合约定义，可按功能分类文档化
+3. **测试覆盖补充**：Solana 和 Solidity 模块缺少独立测试目录，建议补充测试用例
+4. **示例代码索引**：`example/` 目录下有大量示例，可生成示例索引表
+
+---
+
+*此文档由 AI 架构师于 2025-10-21 10:56:05 自动生成，采用自适应扫描策略，平衡了速度与深度。*
