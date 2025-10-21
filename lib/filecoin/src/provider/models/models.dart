@@ -88,3 +88,114 @@ class FilecoinVersion {
     );
   }
 }
+
+/// Represents a Filecoin message CID
+class FilecoinCID {
+  final String cid;
+
+  const FilecoinCID(this.cid);
+
+  factory FilecoinCID.fromJson(Map<String, dynamic> json) {
+    return FilecoinCID(json['/'] ?? '');
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'/': cid};
+  }
+}
+
+/// Represents a multisig message result with validity status
+/// Note: Uses FilecoinMessage from fil_message.dart (no import needed due to export in filecoin.dart)
+class FilecoinMsigMessageResult {
+  final Map<String, dynamic> message;
+  final bool validNonce;
+
+  const FilecoinMsigMessageResult({
+    required this.message,
+    required this.validNonce,
+  });
+
+  factory FilecoinMsigMessageResult.fromJson(Map<String, dynamic> json) {
+    return FilecoinMsigMessageResult(
+      message: json['Message'] ?? {},
+      validNonce: json['ValidNonce'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Message': message,
+      'ValidNonce': validNonce,
+    };
+  }
+}
+
+/// Represents a pending multisig transaction
+class FilecoinMsigTransaction {
+  final int id;
+  final String to;
+  final String value;
+  final int method;
+  final String params;
+  final List<String> approved;
+
+  const FilecoinMsigTransaction({
+    required this.id,
+    required this.to,
+    required this.value,
+    required this.method,
+    required this.params,
+    required this.approved,
+  });
+
+  factory FilecoinMsigTransaction.fromJson(Map<String, dynamic> json) {
+    return FilecoinMsigTransaction(
+      id: json['ID'] ?? 0,
+      to: json['To'] ?? '',
+      value: json['Value'] ?? '0',
+      method: json['Method'] ?? 0,
+      params: json['Params'] ?? '',
+      approved: (json['Approved'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'ID': id,
+      'To': to,
+      'Value': value,
+      'Method': method,
+      'Params': params,
+      'Approved': approved,
+    };
+  }
+}
+
+/// Represents a multisig vesting schedule
+class FilecoinMsigVestingSchedule {
+  final String initialBalance;
+  final int startEpoch;
+  final int unlockDuration;
+
+  const FilecoinMsigVestingSchedule({
+    required this.initialBalance,
+    required this.startEpoch,
+    required this.unlockDuration,
+  });
+
+  factory FilecoinMsigVestingSchedule.fromJson(Map<String, dynamic> json) {
+    return FilecoinMsigVestingSchedule(
+      initialBalance: json['InitialBalance'] ?? '0',
+      startEpoch: json['StartEpoch'] ?? 0,
+      unlockDuration: json['UnlockDuration'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'InitialBalance': initialBalance,
+      'StartEpoch': startEpoch,
+      'UnlockDuration': unlockDuration,
+    };
+  }
+}

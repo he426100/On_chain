@@ -35,6 +35,20 @@ class FilecoinMethods {
   static const String msigGetPending = 'Filecoin.MsigGetPending';
   static const String msigGetAvailableBalance = 'Filecoin.MsigGetAvailableBalance';
   static const String msigGetVested = 'Filecoin.MsigGetVested';
+  static const String msigGetVestingSchedule = 'Filecoin.MsigGetVestingSchedule';
+  static const String msigCreate = 'Filecoin.MsigCreate';
+  static const String msigPropose = 'Filecoin.MsigPropose';
+  static const String msigApprove = 'Filecoin.MsigApprove';
+  static const String msigApproveTxnHash = 'Filecoin.MsigApproveTxnHash';
+  static const String msigCancel = 'Filecoin.MsigCancel';
+  static const String msigCancelTxnHash = 'Filecoin.MsigCancelTxnHash';
+  static const String msigAddPropose = 'Filecoin.MsigAddPropose';
+  static const String msigAddApprove = 'Filecoin.MsigAddApprove';
+  static const String msigAddCancel = 'Filecoin.MsigAddCancel';
+  static const String msigSwapPropose = 'Filecoin.MsigSwapPropose';
+  static const String msigSwapApprove = 'Filecoin.MsigSwapApprove';
+  static const String msigSwapCancel = 'Filecoin.MsigSwapCancel';
+  static const String msigRemoveSigner = 'Filecoin.MsigRemoveSigner';
 
   /// Version and network info
   static const String version = 'Filecoin.Version';
