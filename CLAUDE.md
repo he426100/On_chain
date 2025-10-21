@@ -14,13 +14,13 @@ On_chain is a cross-platform Dart/Flutter package for blockchain development sup
 dart test
 
 # Run tests for a specific blockchain
-dart test test/etherum/
+dart test test/ethereum/
 dart test test/tron/
 dart test test/solana/
 dart test test/filecoin/
 
 # Run specific test file
-dart test test/etherum/transaction_test.dart
+dart test test/ethereum/transaction_test.dart
 ```
 
 ### Build and Analysis
@@ -143,8 +143,9 @@ final transaction = VersionedTransaction(...);
 
 ### Solana BorshSerialization
 - Solana programs use Borsh (Binary Object Representation Serializer for Hashing)
-- Program layouts extend `ProgramLayout` base class
+- Program layouts extend `ProgramLayout` base class in `lib/solana/src/borsh_serialization/core/program_layout.dart`
 - Unknown programs can be handled with `UnknownProgramLayout`
+- Custom program layouts must implement `serialize()` and `deserialize()` methods
 
 ### Filecoin Addresses
 - Multiple address types: ID (f0), SECP256K1 (f1), Delegated/Ethereum-compatible (f4)
@@ -165,6 +166,75 @@ Tests are organized by network under `test/`:
 - ABI encoding/decoding tests
 - Integration examples (not actual tests) in `example/lib/example/`
 
+### Running Specific Tests
+```bash
+# Test specific blockchain module
+dart test test/ethereum/
+dart test test/tron/
+dart test test/solana/
+dart test test/filecoin/
+
+# Test specific functionality
+dart test test/ethereum/transaction_test.dart
+dart test test/solana/address_test.dart
+```
+
 ## Dependencies
 
-Main dependency: `blockchain_utils` package provides cryptographic primitives (ECDSA, EdDSA, hashing, BIP32/39/44) used across all blockchain implementations.
+Main dependency: `blockchain_utils` package (v5.2.0+) provides cryptographic primitives (ECDSA, EdDSA, hashing, BIP32/39/44) used across all blockchain implementations.
+
+## Transaction Builder Pattern Details
+
+### Ethereum Transaction Creation
+The `ETHTransactionBuilder` class in `lib/ethereum/src/transaction/eth_transaction_builder.dart` provides:
+- Basic transfers: `ETHTransactionBuilder(from, to, value, chainId)`
+- Contract calls: `ETHTransactionBuilder.contract(contractAddress, function, functionParams)`
+- Transaction type selection via `transactionType` parameter (Legacy, EIP1559, EIP2930)
+- Automatic gas estimation, nonce management, and signing through builder methods
+
+### Transaction Lifecycle
+1. Build transaction using appropriate builder method
+2. Set gas parameters (manually or via `estimateGas()`)
+3. Set nonce (manually or via `setNonce()`)
+4. Sign transaction with `signTransaction(privateKey)`
+5. Send via `sendTransaction()` or get raw bytes via `transaction.serialized`
+
+## Error Handling
+
+Each blockchain module has its own exception types:
+- Ethereum: `ETHPluginException` in `lib/ethereum/src/exception/exception.dart`
+- Tron: `TronPluginException`
+- Solana: `SolanaPluginException`
+- Filecoin: `FilecoinPluginException`
+
+Common error scenarios:
+- Invalid address format
+- Insufficient balance
+- Gas estimation failures
+- RPC connection errors
+- Signature validation failures
+
+## Key File Locations
+
+When making changes, these are the critical files to understand:
+
+### Ethereum
+- Transaction types: `lib/ethereum/src/transaction/eth_transaction.dart`
+- Builder: `lib/ethereum/src/transaction/eth_transaction_builder.dart`
+- Provider: `lib/ethereum/src/rpc/provider/provider.dart`
+- RPC methods: `lib/ethereum/src/rpc/methds/`
+
+### Tron
+- Contracts: `lib/tron/src/contract/`
+- Provider: `lib/tron/src/provider/provider/provider.dart`
+- Protobuf: `lib/tron/src/protbuf/`
+
+### Solana
+- Instructions: `lib/solana/src/instructions/`
+- RPC client: `lib/solana/src/rpc/provider/provider.dart`
+- Transaction models: `lib/solana/src/models/`
+
+### Filecoin
+- Provider: `lib/filecoin/src/provider/provider.dart`
+- Methods: `lib/filecoin/src/methods/`
+- Address handling: `lib/filecoin/src/address/`
