@@ -216,3 +216,37 @@ class FilecoinRequestStateListMessages extends FilecoinRequest<List<Map<String, 
     return [match, tipSetKey, toHeight];
   }
 }
+
+/// StateAccountKey returns the public key address of the given ID address
+class FilecoinRequestStateAccountKey extends FilecoinRequest<String, dynamic> {
+  FilecoinRequestStateAccountKey(this.address, {this.tipSetKey});
+
+  /// The ID address to convert (e.g., "f0123")
+  final String address;
+
+  /// Optional tipset key (null means use chain head)
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.stateAccountKey;
+
+  @override
+  List<dynamic> toJson() => [address, tipSetKey ?? []];
+}
+
+/// StateLookupID retrieves the ID address of the given address
+class FilecoinRequestStateLookupID extends FilecoinRequest<String, dynamic> {
+  FilecoinRequestStateLookupID(this.address, {this.tipSetKey});
+
+  /// The address to convert to ID address
+  final String address;
+
+  /// Optional tipset key (null means use chain head)
+  final List<Map<String, dynamic>>? tipSetKey;
+
+  @override
+  String get method => FilecoinMethods.stateLookupID;
+
+  @override
+  List<dynamic> toJson() => [address, tipSetKey ?? []];
+}
