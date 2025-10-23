@@ -4,6 +4,7 @@ import 'package:on_chain/filecoin/src/address/fil_address.dart';
 /// Filecoin transaction methods
 enum FilecoinMethod {
   send(0),
+  exec(2),
   invokeEvm(3844450837);
 
   const FilecoinMethod(this.value);
