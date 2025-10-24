@@ -1,5 +1,6 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/filecoin/src/address/fil_address.dart';
+import 'dart:convert'; 
 
 /// Filecoin transaction methods
 enum FilecoinMethod {
@@ -239,7 +240,7 @@ class FilecoinTransaction {
       'GasPremium': gasPremium.toString(),
       'Method': method.value,
       // Params must be empty string ("") not null, matching iso-filecoin
-      'Params': params.isEmpty ? '' : BytesUtils.toHexString(params, prefix: '0x'),
+      'Params': params.isEmpty ? '' : base64.encode(params),
     };
   }
 
