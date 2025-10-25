@@ -6,6 +6,9 @@ import 'dart:convert';
 enum FilecoinMethod {
   send(0),
   exec(2),
+  propose(2),
+  approve(3),
+  cancel(4),
   invokeEvm(3844450837);
 
   const FilecoinMethod(this.value);
