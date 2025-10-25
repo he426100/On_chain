@@ -9,7 +9,8 @@ enum FilecoinMethod {
   propose(2),
   approve(3),
   cancel(4),
-  invokeEvm(3844450837);
+  invokeEvm(3844450837), // 0xe525aa15
+  invokeContract(3844450837);
 
   const FilecoinMethod(this.value);
   final int value;
