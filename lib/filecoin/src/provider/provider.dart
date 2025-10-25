@@ -26,47 +26,23 @@ class FilecoinProvider extends BaseProvider<FilecoinRequestDetails> {
   ///
   /// This method extracts the 'result' field from the JSON-RPC 2.0 response,
   /// matching the behavior of Ethereum and Solana providers.
-  SERVICERESPONSE _findError<SERVICERESPONSE>(
-      BaseServiceResponse<SERVICERESPONSE> response,
-      FilecoinRequestDetails request) {
-    dynamic result = response.getResult(request);
-
-    // If the response is a JSON string, parse it first
-    if (result is String) {
-      try {
-        result = StringUtils.toJson(result);
-      } catch (e) {
-        // If parsing fails, return the string as-is
-        return result as SERVICERESPONSE;
-      }
+  static SERVICERESPONSE _findError<SERVICERESPONSE>(
+      {required BaseServiceResponse<Map<String, dynamic>> response,
+      required FilecoinRequestDetails params}) {
+    final Map<String, dynamic> r = response.getResult(params);
+    final error = r['error'];
+    if (error != null) {
+      final errorJson = StringUtils.tryToJson<Map<String, dynamic>>(error);
+      final errorCode = IntUtils.tryParse(errorJson?['code']);
+      final String? message = error['message']?.toString();
+      throw RPCError(
+          errorCode: errorCode,
+          message: message ?? error.toString(),
+          request: params.toJson(),
+          details: errorJson);
     }
-
-    // Handle JSON-RPC 2.0 response format
-    if (result is Map) {
-      // Check for error field
-      if (result.containsKey('error')) {
-        final error = result['error'];
-        if (error is Map) {
-          throw RPCError(
-              message: error['message']?.toString() ?? ServiceConst.defaultError,
-              errorCode: error['code'],
-              request: request.toJson());
-        } else {
-          throw RPCError(
-              message: error?.toString() ?? ServiceConst.defaultError,
-              request: request.toJson());
-        }
-      }
-
-      // Extract the 'result' field from JSON-RPC 2.0 response
-      // This matches the behavior of Ethereum and Solana providers
-      if (result.containsKey('result')) {
-        return result['result'] as SERVICERESPONSE;
-      }
-    }
-
-    // Fallback: return result as-is if it's not a Map or doesn't have 'result' field
-    return result as SERVICERESPONSE;
+    return ServiceProviderUtils.parseResponse(
+        object: r['result'], params: params);
   }
 
   /// Sends a request to the Filecoin network using the specified [request] parameter
@@ -76,10 +52,8 @@ class FilecoinProvider extends BaseProvider<FilecoinRequestDetails> {
   Future<RESULT> request<RESULT, SERVICERESPONSE>(
       BaseServiceRequest<RESULT, SERVICERESPONSE, FilecoinRequestDetails> request,
       {Duration? timeout}) async {
-    final params = request.buildRequest(_id++);
-    final data = await rpc.doRequest<SERVICERESPONSE>(params, timeout: timeout);
-    final result = _findError(data, params);
-    return result as RESULT;
+    final r = await requestDynamic(request, timeout: timeout);
+    return request.onResonse(r);
   }
 
   /// Sends a request to the Filecoin network and returns the raw service response
@@ -88,7 +62,8 @@ class FilecoinProvider extends BaseProvider<FilecoinRequestDetails> {
       BaseServiceRequest<RESULT, SERVICERESPONSE, FilecoinRequestDetails> request,
       {Duration? timeout}) async {
     final params = request.buildRequest(_id++);
-    final data = await rpc.doRequest<SERVICERESPONSE>(params, timeout: timeout);
-    return _findError(data, params);
+    final response =
+        await rpc.doRequest<Map<String, dynamic>>(params, timeout: timeout);
+    return _findError(params: params, response: response);
   }
 }
