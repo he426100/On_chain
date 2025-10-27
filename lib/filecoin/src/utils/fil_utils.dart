@@ -61,35 +61,35 @@ class FilecoinUtils {
       );
     }
 
-    if (!bip32PathRegex.hasMatch(parts[4])) {
+    if (!bip32PathRegex.hasMatch(parts[4]) || parts[4].endsWith("'")) {
       throw ArgumentError(
         'Invalid derivation path: The "change" node (depth 4) must be a BIP-32 node.',
       );
     }
 
-    if (!bip32PathRegex.hasMatch(parts[5])) {
+    if (!bip32PathRegex.hasMatch(parts[5]) || parts[5].endsWith("'")) {
       throw ArgumentError(
         'Invalid derivation path: The "address_index" node (depth 5) must be a BIP-32 node.',
       );
     }
 
-    final purpose = int.parse(parts[1].replaceAll("'", ''));
-    final coinType = int.parse(parts[2].replaceAll("'", ''));
-    final account = int.parse(parts[3].replaceAll("'", ''));
-    final change = int.parse(parts[4]);
-    final addressIndex = int.parse(parts[5]);
+    try {
+      final purpose = int.parse(parts[1].replaceAll("'", ''));
+      final coinType = int.parse(parts[2].replaceAll("'", ''));
+      final account = int.parse(parts[3].replaceAll("'", ''));
+      final change = int.parse(parts[4]);
+      final addressIndex = int.parse(parts[5]);
 
-    if (purpose.isNaN || coinType.isNaN || account.isNaN || change.isNaN || addressIndex.isNaN) {
-      throw TypeError();
+      return DerivationPathComponents(
+        purpose: purpose,
+        coinType: coinType,
+        account: account,
+        change: change,
+        addressIndex: addressIndex,
+      );
+    } on FormatException catch (e) {
+      throw ArgumentError('Invalid derivation path: Invalid number format - ${e.message}');
     }
-
-    return DerivationPathComponents(
-      purpose: purpose,
-      coinType: coinType,
-      account: account,
-      change: change,
-      addressIndex: addressIndex,
-    );
   }
 
   /// Get network prefix from network
@@ -174,9 +174,12 @@ class FilecoinUtils {
     if (!RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address)) {
       return false;
     }
-    if (address.toLowerCase() == address) {
+    // All lowercase or all uppercase (except 0x) is valid
+    final withoutPrefix = address.substring(2);
+    if (withoutPrefix.toLowerCase() == withoutPrefix || withoutPrefix.toUpperCase() == withoutPrefix) {
       return true;
     }
+    // Mixed case must match EIP-55 checksum
     return checksumEthAddress(address) == address;
   }
 
