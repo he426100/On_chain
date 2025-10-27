@@ -1,6 +1,3 @@
-/// Export all Filecoin RPC method classes
-/// This file provides a centralized export for all method implementations
-
 // Chain methods
 export 'chain/chain_head.dart';
 export 'chain/estimate_gas_fee_cap.dart';
