@@ -253,30 +253,45 @@ class FilecoinWallet {
   }
 
   /// Verify signature
+  /// 
+  /// Verifies a Filecoin signature against data using the provided public key.
+  /// The signature should be 65 bytes: r(32) + s(32) + recovery_id(1)
   static bool verify({
     required List<int> publicKey,
     required List<int> data,
     required FilecoinSignature signature,
   }) {
+    // Validate signature length
     if (signature.data.length != 65) {
       return false;
     }
 
-    // Hash with Blake2b-256
-    final hash = QuickCrypto.blake2b256Hash(data);
+    try {
+      // Hash data with Blake2b-256
+      final hash = QuickCrypto.blake2b256Hash(data);
 
-    // Extract r, s from signature (v is recovery id, not needed for verification)
-    final r = BigintUtils.fromBytes(signature.data.sublist(0, 32));
-    final s = BigintUtils.fromBytes(signature.data.sublist(32, 64));
-    // final v = signature.data[64]; // Recovery ID not needed for verification
+      // Extract r and s from signature (first 64 bytes)
+      // The last byte (recovery_id) is not used for direct verification
+      final r = BigintUtils.fromBytes(signature.data.sublist(0, 32));
+      final s = BigintUtils.fromBytes(signature.data.sublist(32, 64));
 
-    // Create ECDSA signature
-    final ecdsaSignature = ECDSASignature(r, s);
+      // Create ECDSA signature from r and s
+      final ecdsaSignature = ECDSASignature(r, s);
 
-    // Create verifier
-    final verifier = Secp256k1Verifier.fromKeyBytes(publicKey);
+      // Create verifier from public key
+      final verifier = Secp256k1Verifier.fromKeyBytes(publicKey);
 
-    return verifier.verify(hash, ecdsaSignature.toBytes(32), hashMessage: false);
+      // Verify the signature
+      // hashMessage: false because we already hashed with Blake2b-256
+      return verifier.verify(
+        hash,
+        ecdsaSignature.toBytes(32), // Convert to 64-byte format (r + s)
+        hashMessage: false,
+      );
+    } catch (e) {
+      // Any error during verification means invalid signature
+      return false;
+    }
   }
 
   /// Determine network from derivation path

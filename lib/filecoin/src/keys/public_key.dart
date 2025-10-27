@@ -100,24 +100,37 @@ class FilPublicKey {
 
   /// Verify a signature against a message digest
   /// 
-  /// Note: This is a simplified verification that checks basic signature format.
-  /// For production use, consider using a dedicated cryptographic library for full ECDSA verification.
+  /// The signature should be 65 bytes: r(32) + s(32) + recovery_id(1)
+  /// This method verifies the ECDSA signature using the public key.
   bool verify(List<int> digest, List<int> signature) {
-    // Basic validation: signature should be 65 bytes
+    // Validate signature length: should be 65 bytes (r + s + recovery_id)
     if (signature.length != 65) {
       return false;
     }
     
-    // Additional validation could be added here using external verification libraries
-    // For now, we assume the signature format is correct
-    // A full ECDSA verification would require:
-    // 1. Parsing the signature (r, s, recovery_id)
-    // 2. Recovering the public key from the signature
-    // 3. Comparing the recovered key with this public key
-    
-    // Placeholder: always return true for correctly formatted signatures
-    // This maintains API compatibility while being conservative
-    return true;
+    try {
+      // Extract r and s from signature (first 64 bytes)
+      // The last byte (recovery_id) is not used for verification
+      final r = BigintUtils.fromBytes(signature.sublist(0, 32));
+      final s = BigintUtils.fromBytes(signature.sublist(32, 64));
+      
+      // Create ECDSA signature from r and s
+      final ecdsaSignature = ECDSASignature(r, s);
+      
+      // Create verifier from this public key
+      final verifier = Secp256k1Verifier.fromKeyBytes(_keyBytes);
+      
+      // Verify the signature
+      // Note: hashMessage is false because digest is already hashed
+      return verifier.verify(
+        digest,
+        ecdsaSignature.toBytes(32), // Convert to 64-byte format (r + s)
+        hashMessage: false,
+      );
+    } catch (e) {
+      // Any error during verification means invalid signature
+      return false;
+    }
   }
 
   @override
