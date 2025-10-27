@@ -19,9 +19,7 @@ export 'src/provider/provider.dart';
 export 'src/provider/core/request.dart';
 export 'src/provider/service/service.dart';
 export 'src/provider/methods/methods.dart';
-export 'src/provider/methods/chain_methods.dart';
-export 'src/provider/methods/eth_methods.dart';
-export 'src/provider/methods/multisig_methods.dart';
+export 'src/provider/methods/methods_export.dart';
 export 'src/provider/models/models.dart';
 
 // Message
@@ -38,3 +36,6 @@ export 'src/chains/fil_chains.dart';
 
 // Contracts
 export 'src/contracts/fil_forwarder.dart';
+
+// Exception
+export 'src/exception/exception.dart';
