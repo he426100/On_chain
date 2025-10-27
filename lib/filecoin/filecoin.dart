@@ -5,6 +5,9 @@ export 'src/network/filecoin_network.dart';
 export 'src/address/fil_address.dart';
 export 'src/address/address_converter.dart';
 
+// Keys
+export 'src/keys/keys.dart';
+
 // Transaction
 export 'src/transaction/fil_transaction.dart';
 
