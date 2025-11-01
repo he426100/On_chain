@@ -2,12 +2,16 @@
 
 [English](README.md) | [中文](README_CN.md)
 
-Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, and Solana blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
+Onchain Plugin for Dart—an advanced cross-platform solution that seamlessly integrates with Ethereum, Tron, Solana, Conflux, and Filecoin blockchains. It supports key Ethereum standards such as Legacy, EIP1559, EIP2930, and EIP712, providing developers with powerful tools for transactions, smart contracts, and token management.
 
 this plugin enables:
 
+- Ethereum: Legacy, EIP1559, EIP2930, EIP712, smart contracts, and HD wallet support.
 - Tron: Account creation, asset transfers, native operations, and smart contract execution.
 - Solana: Metaplex integration, token management, staking, and smart contracts.
+- Conflux: Core Space (Base32 addresses) and eSpace (EVM-compatible) support with full transaction capabilities.
+- Filecoin: Address management, transaction signing, and FIL token operations.
+
 This package streamlines blockchain development across multiple ecosystems, making it a comprehensive toolkit for Dart developers.
 
 
@@ -91,6 +95,47 @@ This package streamlines blockchain development across multiple ecosystems, maki
 
 - [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/solana)
 
+### Conflux Network
+
+- **Core Space Support**: Full support for Conflux's native Core Space with Base32 address encoding (CIP-37 standard)
+
+- **eSpace Support**: Complete EVM-compatible eSpace support with 0x addresses
+
+- **Address Management**: 
+  - Base32 address encoding/decoding for Core Space (cfx:...)
+  - Hex address support for eSpace (0x...)
+  - Address type identification (user, contract, builtin, null)
+  - Network ID validation (mainnet=1029, testnet=1)
+
+- **Transaction Building**: Comprehensive transaction creation and management
+  - Core Space transactions with storageLimit and epochHeight
+  - Transaction signing and serialization
+  - RLP encoding/decoding
+  - Transaction hash calculation
+
+- **Key Management**: 
+  - Private/public key generation
+  - Address derivation for both Core Space and eSpace
+  - HD wallet support using BIP44 (Ethereum coin type)
+  - Personal message signing
+
+- **RPC Methods**: 14+ Core Space RPC methods including:
+  - Account operations (balance, nonce)
+  - Transaction operations (send, receipt, estimation)
+  - Contract operations (call, getCode)
+  - Sponsor mechanism (getSponsorInfo, checkBalanceAgainstTransaction)
+  - Network operations (chainId, gasPrice, epochNumber)
+
+- **Conflux Features**: 
+  - Storage collateral support
+  - Epoch number handling
+  - Sponsor mechanism integration
+  - Network-specific address formatting
+
+- **HD-Wallet**: Manage mnemonic generation, seed derivation, and address creation
+
+- [Examples](https://github.com/mrtnetwork/On_chain/tree/main/example/lib/example/conflux)
+- [Technical Documentation](https://github.com/mrtnetwork/On_chain/blob/main/lib/conflux/CLAUDE.md)
 
 ### solidity
 
