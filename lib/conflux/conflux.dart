@@ -52,8 +52,8 @@ export 'src/transaction/transaction.dart';
 /// Export RLP encoding/decoding (reuses Ethereum RLP)
 export 'src/rlp/rlp.dart';
 
-/// Export models
-export 'src/models/models.dart';
+/// Export models (hide AccessList to avoid conflict with Ethereum's AccessList)
+export 'src/models/models.dart' hide AccessList, AccessListEntry;
 
 /// Export RPC
 export 'src/rpc/rpc.dart';

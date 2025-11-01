@@ -9,4 +9,5 @@ export 'transaction_receipt.dart';
 export 'block.dart';
 export 'account_info.dart';
 export 'fee_history.dart';
+export 'access_list.dart';
 

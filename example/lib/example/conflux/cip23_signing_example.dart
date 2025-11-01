@@ -1,5 +1,6 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, prefer_const_constructors
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/conflux/conflux.dart';
 
 /// Example demonstrating CIP-23 (Conflux's equivalent of EIP-712) structured data signing
@@ -16,11 +17,11 @@ import 'package:on_chain/conflux/conflux.dart';
 /// - Recovering the signer's address from a signature
 void cip23SigningExample() {
   // Step 1: Create a private key for signing
-  final privateKey = CFXPrivateKey.fromHex(
-    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  final privateKey = CFXPrivateKey.fromBytes(
+    BytesUtils.fromHexString('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   );
   final publicKey = privateKey.publicKey();
-  final signerAddress = publicKey.toCoreAddress(networkId: 1); // Mainnet
+  final signerAddress = publicKey.toAddress(1); // Mainnet
 
   // Conflux Core Space address
   // signerAddress: cfx:aajg4wt2mbmbb44sp6szd783ry0jtad5bea80xdy7p
