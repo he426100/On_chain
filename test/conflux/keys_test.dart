@@ -112,8 +112,12 @@ void main() {
       final coreAddr = publicKey.toAddress(1029);
       final eSpaceAddr = publicKey.toESpaceAddress();
       
-      // Hex addresses should be the same (just different formats)
-      expect(coreAddr.toHex().toLowerCase(), equals(eSpaceAddr.toHex().toLowerCase()));
+      // Core Space address is converted to user type (0x1...)
+      // eSpace address follows Ethereum's standard derivation (no conversion)
+      // They share the same last 19 bytes
+      expect(coreAddr.toHex().substring(3).toLowerCase(), 
+             equals(eSpaceAddr.toHex().substring(3).toLowerCase()));
+      expect(coreAddr.toHex().startsWith('0x1'), isTrue);
     });
 
     test('Compressed vs uncompressed public key', () {

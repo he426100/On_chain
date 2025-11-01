@@ -3,7 +3,80 @@ import 'package:on_chain/conflux/conflux.dart';
 
 void main() {
   group('CFXAddress Tests', () {
-    group('Base32 encoding/decoding', () {
+    group('Base32 encoding/decoding (Helios compatibility)', () {
+      // Test examples from helios/packages/base32-address/index.test.js
+      // These ensure 100% compatibility with the JavaScript implementation
+      
+      test('Null address (all zeros)', () {
+        final hexAddress = '0x0000000000000000000000000000000000000000';
+        final address = CFXAddress.fromHex(hexAddress, 1029);
+        expect(address.toBase32(), 'cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2');
+        expect(address.addressType, CFXAddressType.nullAddress);
+        
+        // Test verbose format
+        final verboseAddress = CFXAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2');
+        expect(verboseAddress.toHex().toLowerCase(), hexAddress);
+        expect(verboseAddress.networkId, 1029);
+      });
+      
+      test('User address - example 1', () {
+        final hexAddress = '0x106d49f8505410eb4e671d51f7d96d2c87807b09';
+        final address = CFXAddress.fromHex(hexAddress, 1029);
+        expect(address.toBase32(), 'cfx:aajg4wt2mbmbb44sp6szd783ry0jtad5bea80xdy7p');
+        
+        // Test verbose format (case insensitive)
+        final verboseAddress = CFXAddress('CFX:TYPE.USER:AAJG4WT2MBMBB44SP6SZD783RY0JTAD5BEA80XDY7P');
+        expect(verboseAddress.toHex().toLowerCase(), hexAddress);
+      });
+      
+      test('User address - example 2', () {
+        final hexAddress = '0x1a2f80341409639ea6a35bbcab8299066109aa55';
+        final address = CFXAddress.fromHex(hexAddress, 1029);
+        expect(address.toBase32(), 'cfx:aarc9abycue0hhzgyrr53m6cxedgccrmmyybjgh4xg');
+        
+        // Test verbose format
+        final verboseAddress = CFXAddress('CFX:TYPE.USER:AARC9ABYCUE0HHZGYRR53M6CXEDGCCRMMYYBJGH4XG');
+        expect(verboseAddress.toHex().toLowerCase(), hexAddress);
+      });
+      
+      test('Contract address', () {
+        final hexAddress = '0x806d49f8505410eb4e671d51f7d96d2c87807b09';
+        final address = CFXAddress.fromHex(hexAddress, 1029);
+        expect(address.toBase32(), 'cfx:acag4wt2mbmbb44sp6szd783ry0jtad5bex25t8vc9');
+        expect(address.addressType, CFXAddressType.contract);
+        
+        // Test verbose format
+        final verboseAddress = CFXAddress('CFX:TYPE.CONTRACT:ACAG4WT2MBMBB44SP6SZD783RY0JTAD5BEX25T8VC9');
+        expect(verboseAddress.toHex().toLowerCase(), hexAddress);
+      });
+      
+      test('Builtin address', () {
+        final hexAddress = '0x006d49f8505410eb4e671d51f7d96d2c87807b09';
+        final address = CFXAddress.fromHex(hexAddress, 1029);
+        expect(address.toBase32(), 'cfx:aaag4wt2mbmbb44sp6szd783ry0jtad5beaar3k429');
+        expect(address.addressType, CFXAddressType.builtin);
+        
+        // Test verbose format
+        final verboseAddress = CFXAddress('CFX:TYPE.BUILTIN:AAAG4WT2MBMBB44SP6SZD783RY0JTAD5BEAAR3K429');
+        expect(verboseAddress.toHex().toLowerCase(), hexAddress);
+      });
+      
+      test('Different networks', () {
+        // Mainnet (1029)
+        final mainnet = CFXAddress.fromHex('0x106d49f8505410eb4e671d51f7d96d2c87807b09', 1029);
+        expect(mainnet.toBase32(), 'cfx:aajg4wt2mbmbb44sp6szd783ry0jtad5bea80xdy7p');
+        
+        // Testnet (1)
+        final testnet = CFXAddress.fromHex('0x806d49f8505410eb4e671d51f7d96d2c87807b09', 1);
+        expect(testnet.toBase32(), 'cfxtest:acag4wt2mbmbb44sp6szd783ry0jtad5be3xj925gz');
+        
+        // Custom network (10086)
+        final custom = CFXAddress.fromHex('0x006d49f8505410eb4e671d51f7d96d2c87807b09', 10086);
+        expect(custom.toBase32(), 'net10086:aaag4wt2mbmbb44sp6szd783ry0jtad5benr1ap5gp');
+      });
+    });
+
+    group('Base32 encoding/decoding (additional)', () {
       test('Mainnet user address', () {
         final hexAddress = '0x1063E0B1B39C08806E5E445D633C70D66E401750';
         final address = CFXAddress.fromHex(hexAddress, 1029);

@@ -43,8 +43,12 @@ class CFXPublicKey {
   /// Generates a Conflux Core Space address for the specified network.
   /// 
   /// The address is derived using Ethereum's address derivation algorithm
-  /// (Keccak256 hash of uncompressed public key), then encoded in Conflux's
-  /// Base32 format (CIP-37).
+  /// (Keccak256 hash of uncompressed public key), then converted to a user
+  /// address type (0x1 prefix) as per Conflux convention, and encoded in
+  /// Conflux's Base32 format (CIP-37).
+  /// 
+  /// Note: Conflux automatically converts addresses derived from private keys
+  /// to user address type (0x1...), regardless of the original hash output.
   /// 
   /// Example:
   /// ```dart
@@ -54,12 +58,21 @@ class CFXPublicKey {
   CFXAddress toAddress(int networkId) {
     // Use Ethereum address encoder to derive address from public key
     final hexAddress = EthAddrEncoder().encodeKey(toCompressedBytes());
-    return CFXAddress.fromHex(hexAddress, networkId);
+    
+    // Convert to user address type (0x1...) as per Conflux convention
+    // This matches the behavior of js-conflux-sdk's privateKeyToAddress
+    final userHexAddress = '0x1${hexAddress.substring(3)}';
+    
+    return CFXAddress.fromHex(userHexAddress, networkId);
   }
 
   /// Generates an eSpace address (0x format, Ethereum-compatible).
+  /// 
+  /// Note: eSpace addresses are NOT converted to user address type (0x1...)
+  /// as they follow Ethereum's standard address derivation.
   ESpaceAddress toESpaceAddress() {
     // Use EthAddrEncoder to get address from public key
+    // eSpace addresses maintain the original Ethereum-style address format
     final hexAddress = EthAddrEncoder().encodeKey(toCompressedBytes());
 
     return ESpaceAddress(hexAddress);

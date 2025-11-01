@@ -172,16 +172,26 @@ class CFXAddress {
       );
     }
 
-    // Decode hex address
-    final hexBytes = cfx_base32.Base32Encoder.decodeWithChecksum(prefix, encoded);
+    // Decode hex address (CIP-37: payload = version-byte + 20-byte address)
+    final payload = cfx_base32.Base32Encoder.decodeWithChecksum(prefix, encoded);
     
-    if (hexBytes.length != 20) {
+    if (payload.length != 21) {
       throw InvalidConfluxAddressException(
-        'Decoded address must be 20 bytes',
-        details: {'length': hexBytes.length},
+        'Decoded payload must be 21 bytes (version-byte + address)',
+        details: {'length': payload.length},
       );
     }
 
+    // Extract version-byte and address
+    final versionByte = payload[0];
+    if (versionByte != 0x00) {
+      throw InvalidConfluxAddressException(
+        'Unsupported version byte',
+        details: {'versionByte': versionByte},
+      );
+    }
+
+    final hexBytes = payload.sublist(1); // Remove version-byte
     final hexAddress = '0x${BytesUtils.toHexString(hexBytes, lowerCase: true)}';
     final addressType = CFXAddressType.fromHexAddress(hexAddress);
 
@@ -248,7 +258,10 @@ class CFXAddress {
   /// `cfx:type.user:encoded`
   String toBase32({bool verbose = false}) {
     final hexBytes = BytesUtils.fromHexString(_hexAddress);
-    final encoded = cfx_base32.Base32Encoder.encodeWithChecksum(networkPrefix, hexBytes);
+    
+    // CIP-37: payload = version-byte (0x00) + 20-byte address
+    final payload = [0x00, ...hexBytes];
+    final encoded = cfx_base32.Base32Encoder.encodeWithChecksum(networkPrefix, payload);
 
     if (verbose) {
       return '$networkPrefix:${_addressType.typeString}:${encoded.toUpperCase()}';

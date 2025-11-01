@@ -15,16 +15,19 @@ class CIP23Signer {
   /// Signs CIP-23 typed data with a private key.
   ///
   /// Returns the signature as a hexadecimal string (130 characters, 65 bytes).
+  /// The v value is normalized to 0 or 1 (not 27 or 28) for Conflux compatibility.
   static String sign(CFXPrivateKey privateKey, CIP23TypedData typedData) {
     final messageHash = CIP23Encoder.hashMessage(typedData);
     final signature = privateKey.sign(messageHash, hashMessage: false);
 
     // Concatenate r, s, v (without 0x prefix)
+    // Note: v is normalized to 0 or 1 (v - 27) for Conflux, not the Ethereum 27/28
     final rBytes = BigintUtils.toBytes(signature.r, length: 32);
     final sBytes = BigintUtils.toBytes(signature.s, length: 32);
     final r = BytesUtils.toHexString(rBytes, lowerCase: false);
     final s = BytesUtils.toHexString(sBytes, lowerCase: false);
-    final v = signature.v.toRadixString(16).padLeft(2, '0');
+    final vNormalized = signature.v >= 27 ? signature.v - 27 : signature.v;
+    final v = vNormalized.toRadixString(16).padLeft(2, '0');
 
     return '$r$s$v';
   }
@@ -80,11 +83,15 @@ class CIP23Signer {
     final pubKeyBytes = pubKeyUncompressed.sublist(1); // Remove 0x04 prefix
     final hash = QuickCrypto.keccack256Hash(pubKeyBytes);
     final addressBytes = hash.sublist(12); // Take last 20 bytes
+    
+    // Convert to hex address
+    final hexAddress = BytesUtils.toHexString(addressBytes, lowerCase: false);
+    
+    // Convert to user address type (0x1...) as per Conflux convention
+    // This matches the behavior of publicKey.toAddress()
+    final userHexAddress = '0x1${hexAddress.substring(1)}';
 
-    return CFXAddress.fromHex(
-      '0x${BytesUtils.toHexString(addressBytes, lowerCase: false)}',
-      networkId,
-    );
+    return CFXAddress.fromHex(userHexAddress, networkId);
   }
 
   /// Computes the CIP-23 message hash for typed data.
