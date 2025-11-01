@@ -41,6 +41,11 @@ class InvalidConfluxTransactionException extends ConfluxPluginException {
   const InvalidConfluxTransactionException(super.message, {super.details});
 }
 
+/// Exception class for CIP-23 typed data errors.
+class ConfluxCIP23Exception extends ConfluxPluginException {
+  const ConfluxCIP23Exception(super.message, {super.details});
+}
+
 /// Exception for RPC-related errors.
 class ConfluxRPCException extends ConfluxPluginException {
   const ConfluxRPCException(super.message, {super.details});

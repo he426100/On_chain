@@ -61,3 +61,6 @@ export 'src/rpc/rpc.dart';
 /// Export exceptions
 export 'src/exception/exception.dart';
 
+// Export CIP-23 structured data signing
+export 'src/cip23/cip23.dart';
+
