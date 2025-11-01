@@ -1,4 +1,3 @@
-import 'package:on_chain/ethereum/src/rpc/service/service.dart';
 import 'package:on_chain/ethereum/src/rpc/provider/provider.dart';
 
 /// Conflux RPC provider for making requests to Conflux nodes.
@@ -26,6 +25,6 @@ import 'package:on_chain/ethereum/src/rpc/provider/provider.dart';
 /// ```
 class ConfluxProvider extends EthereumProvider {
   /// Creates a Conflux provider with the specified service.
-  ConfluxProvider(EthereumServiceProvider rpc) : super(rpc);
+  ConfluxProvider(super.rpc);
 }
 

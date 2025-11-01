@@ -18,37 +18,30 @@ class ConfluxPluginException implements Exception {
 
 /// Exception for invalid Conflux addresses.
 class InvalidConfluxAddressException extends ConfluxPluginException {
-  const InvalidConfluxAddressException(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const InvalidConfluxAddressException(super.message, {super.details});
 }
 
 /// Exception for invalid Base32 encoding/decoding.
 class InvalidBase32Exception extends ConfluxPluginException {
-  const InvalidBase32Exception(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const InvalidBase32Exception(super.message, {super.details});
 }
 
 /// Exception for checksum validation errors.
 class InvalidChecksumException extends ConfluxPluginException {
-  const InvalidChecksumException(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const InvalidChecksumException(super.message, {super.details});
 }
 
 /// Exception for invalid network ID.
 class InvalidNetworkIdException extends ConfluxPluginException {
-  const InvalidNetworkIdException(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const InvalidNetworkIdException(super.message, {super.details});
 }
 
 /// Exception for invalid transaction errors.
 class InvalidConfluxTransactionException extends ConfluxPluginException {
-  const InvalidConfluxTransactionException(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const InvalidConfluxTransactionException(super.message, {super.details});
 }
 
 /// Exception for RPC-related errors.
 class ConfluxRPCException extends ConfluxPluginException {
-  const ConfluxRPCException(String message, {Map<String, dynamic>? details})
-      : super(message, details: details);
+  const ConfluxRPCException(super.message, {super.details});
 }
-
