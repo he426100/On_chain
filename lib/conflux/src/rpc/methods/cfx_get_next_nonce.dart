@@ -6,7 +6,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 /// 
 /// This is different from `cfx_getNextUsableNonce` in that it doesn't
 /// consider pending transactions.
-class CFXGetNextNonce extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXGetNextNonce extends CFXRequest<BigInt, String> {
   CFXGetNextNonce({
     required this.address,
     this.epochNumber = EpochNumber.latestState,
@@ -33,7 +33,7 @@ class CFXGetNextNonce extends CFXRequest<BigInt, Map<String, dynamic>> {
 /// Returns the next usable nonce for the account.
 /// 
 /// This includes pending transactions in the transaction pool.
-class CFXGetNextUsableNonce extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXGetNextUsableNonce extends CFXRequest<BigInt, String> {
   CFXGetNextUsableNonce({required this.address});
 
   /// The address to get nonce for (Base32 format).

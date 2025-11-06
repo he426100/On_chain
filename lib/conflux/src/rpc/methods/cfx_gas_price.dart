@@ -8,7 +8,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 /// final gasPrice = await provider.request(CFXGasPrice());
 /// print('Gas price: $gasPrice Drip');
 /// ```
-class CFXGasPrice extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXGasPrice extends CFXRequest<BigInt, String> {
   const CFXGasPrice();
 
   @override

@@ -13,7 +13,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 ///   ),
 /// );
 /// ```
-class CFXGetBalance extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXGetBalance extends CFXRequest<BigInt, String> {
   CFXGetBalance({
     required this.address,
     this.epochNumber = EpochNumber.latestState,
