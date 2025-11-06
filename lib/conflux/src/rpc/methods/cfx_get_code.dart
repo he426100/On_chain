@@ -12,7 +12,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 ///   ),
 /// );
 /// ```
-class CFXGetCode extends CFXRequest<String, Map<String, dynamic>> {
+class CFXGetCode extends CFXRequest<String, String> {
   CFXGetCode({
     required this.address,
     this.epochNumber = EpochNumber.latestState,

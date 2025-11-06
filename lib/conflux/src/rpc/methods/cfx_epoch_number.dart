@@ -10,7 +10,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 ///   CFXEpochNumber(epochTag: EpochNumber.latestMined),
 /// );
 /// ```
-class CFXEpochNumber extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXEpochNumber extends CFXRequest<BigInt, String> {
   CFXEpochNumber({this.epochTag = EpochNumber.latestMined});
 
   /// The epoch tag to query.

@@ -8,7 +8,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 /// final chainId = await provider.request(CFXChainId());
 /// print('Chain ID: $chainId'); // 1029 for mainnet, 1 for testnet
 /// ```
-class CFXChainId extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXChainId extends CFXRequest<BigInt, String> {
   const CFXChainId();
 
   @override
@@ -26,7 +26,7 @@ class CFXChainId extends CFXRequest<BigInt, Map<String, dynamic>> {
 /// Returns the network ID.
 /// 
 /// Alias for `cfx_netVersion`.
-class CFXNetVersion extends CFXRequest<BigInt, Map<String, dynamic>> {
+class CFXNetVersion extends CFXRequest<BigInt, String> {
   const CFXNetVersion();
 
   @override
