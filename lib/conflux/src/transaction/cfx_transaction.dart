@@ -262,8 +262,9 @@ class CFXTransaction {
     List<dynamic> encoded;
 
     if (type == CFXTransactionType.legacy) {
-      // Legacy: [field1, field2, ..., v, r, s] (flat structure)
-      encoded = [
+      // Legacy: [[nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data], v, r, s] (nested structure)
+      // This matches js-conflux-sdk implementation
+      final fields = [
         _encodeValue(nonce),
         _encodeValue(gasPrice!),
         _encodeValue(gas),
@@ -273,10 +274,8 @@ class CFXTransaction {
         _encodeValue(epochHeight),
         _encodeValue(chainId),
         data,
-        <int>[v!],
-        r!,
-        s!,
       ];
+      encoded = [fields, <int>[v!], r!, s!];
     } else if (type == CFXTransactionType.eip2930) {
       // EIP-2930: [[fields, accessList], v, r, s] (nested structure)
       final accessListEncoded = accessList != null ? accessList!.serialize() : <List<dynamic>>[];
@@ -409,6 +408,7 @@ class CFXTransaction {
   }
 
   /// Decodes a Legacy transaction.
+  /// Format: [[nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data], v, r, s]
   static CFXTransaction _decodeLegacy(List<int> bytes) {
     final decodedList = RLPDecoder.decode(bytes);
 
@@ -416,21 +416,30 @@ class CFXTransaction {
       throw InvalidConfluxTransactionException('Empty RLP data');
     }
 
-    if (decodedList.length < 9) {
+    if (decodedList.length < 2) {
       throw InvalidConfluxTransactionException(
         'Invalid transaction: insufficient fields',
       );
     }
 
-    final nonce = _decodeValue(decodedList[0]);
-    final gasPrice = _decodeValue(decodedList[1]);
-    final gas = _decodeValue(decodedList[2]);
-    final toBytes = decodedList[3] as List<int>;
-    final value = _decodeValue(decodedList[4]);
-    final storageLimit = _decodeValue(decodedList[5]);
-    final epochHeight = _decodeValue(decodedList[6]);
-    final chainId = _decodeValue(decodedList[7]);
-    final data = List<int>.from(decodedList[8]);
+    // First element is the fields array
+    final fields = decodedList[0] as List;
+
+    if (fields.length < 9) {
+      throw InvalidConfluxTransactionException(
+        'Invalid transaction: insufficient fields in unsigned part',
+      );
+    }
+
+    final nonce = _decodeValue(fields[0]);
+    final gasPrice = _decodeValue(fields[1]);
+    final gas = _decodeValue(fields[2]);
+    final toBytes = fields[3] as List<int>;
+    final value = _decodeValue(fields[4]);
+    final storageLimit = _decodeValue(fields[5]);
+    final epochHeight = _decodeValue(fields[6]);
+    final chainId = _decodeValue(fields[7]);
+    final data = List<int>.from(fields[8]);
 
     CFXAddress? to;
     if (toBytes.isNotEmpty) {
@@ -443,11 +452,11 @@ class CFXTransaction {
     List<int>? r;
     List<int>? s;
 
-    if (decodedList.length >= 12) {
-      final vBytes = decodedList[9] as List<int>;
+    if (decodedList.length >= 4) {
+      final vBytes = decodedList[1] as List<int>;
       v = vBytes.isNotEmpty ? vBytes[0] : null;
-      r = List<int>.from(decodedList[10]);
-      s = List<int>.from(decodedList[11]);
+      r = List<int>.from(decodedList[2]);
+      s = List<int>.from(decodedList[3]);
     }
 
     return CFXTransaction(
