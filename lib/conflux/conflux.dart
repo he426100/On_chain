@@ -66,4 +66,5 @@ export 'src/cip23/cip23.dart';
 
 // Export utilities
 export 'src/utils/cfx_unit.dart';
+export 'src/utils/cfx_keystore.dart';
 

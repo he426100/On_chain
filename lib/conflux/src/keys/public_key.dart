@@ -1,4 +1,5 @@
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils/crypto/crypto/cdsa/point/base.dart';
 import 'package:on_chain/conflux/src/address/cfx_address.dart';
 import 'package:on_chain/conflux/src/address/espace_address.dart';
 
@@ -21,6 +22,72 @@ class CFXPublicKey {
   /// Creates a public key from a hex string.
   factory CFXPublicKey.fromHex(String hex) {
     return CFXPublicKey._(Secp256k1PublicKey.fromBytes(BytesUtils.fromHexString(hex)));
+  }
+
+  /// Recovers the public key from a personal message signature.
+  /// 
+  /// Personal messages are prefixed with:
+  /// "\x19Conflux Signed Message:\n" + len(message)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final message = 'Hello World';
+  /// final signature = privateKey.signPersonalMessage(StringUtils.encode(message));
+  /// final publicKey = CFXPublicKey.recoverFromPersonalMessage(
+  ///   StringUtils.encode(message),
+  ///   signature,
+  /// );
+  /// ```
+  static CFXPublicKey recoverFromPersonalMessage(
+    List<int> message,
+    String signature,
+  ) {
+    // Reconstruct the prefixed message
+    final prefix = '\x19Conflux Signed Message:\n${message.length}';
+    final prefixBytes = StringUtils.encode(prefix);
+    final fullMessage = <int>[...prefixBytes, ...message];
+    
+    // Hash the full message
+    final messageHash = QuickCrypto.keccack256Hash(fullMessage);
+    
+    // Parse signature components
+    if (signature.startsWith('0x')) {
+      signature = signature.substring(2);
+    }
+    
+    if (signature.length != 130) {
+      throw ArgumentError('Invalid signature length: ${signature.length}');
+    }
+    
+    final r = BigInt.parse(signature.substring(0, 64), radix: 16);
+    final s = BigInt.parse(signature.substring(64, 128), radix: 16);
+    final v = int.parse(signature.substring(128, 130), radix: 16);
+    
+    // Recovery ID must be 0 or 1 for ECDSA recovery
+    final recoverId = v >= 27 ? v - 27 : v;
+    
+    // Create ECDSA signature
+    final rBytes = BigintUtils.toBytes(r, length: 32);
+    final sBytes = BigintUtils.toBytes(s, length: 32);
+    final sigBytes = [...rBytes, ...sBytes];
+    
+    // Recover public key using ECDSA signature recovery
+    final signatureBytes = ECDSASignature.fromBytes(
+      sigBytes,
+      CryptoSignerConst.generatorSecp256k1,
+    );
+    final recoveredPublicKey = signatureBytes.recoverPublicKey(
+      messageHash,
+      CryptoSignerConst.generatorSecp256k1,
+      recoverId,
+    );
+    
+    // Convert to public key
+    // Get uncompressed format first, then convert to Secp256k1PublicKey
+    // which will handle the compression internally
+    final pubKeyUncompressed = recoveredPublicKey.toBytes(EncodeType.uncompressed);
+    // Secp256k1PublicKey.fromBytes can handle both compressed and uncompressed formats
+    return CFXPublicKey.fromBytes(pubKeyUncompressed);
   }
 
   final Secp256k1PublicKey _key;
