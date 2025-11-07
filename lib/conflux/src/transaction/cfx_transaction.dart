@@ -275,7 +275,9 @@ class CFXTransaction {
         _encodeValue(chainId),
         data,
       ];
-      encoded = [fields, <int>[v!], r!, s!];
+      // v must be encoded correctly: 0 -> [], 1 -> [1], etc. (no leading zeros)
+      final vEncoded = v! == 0 ? <int>[] : <int>[v!];
+      encoded = [fields, vEncoded, r!, s!];
     } else if (type == CFXTransactionType.eip2930) {
       // EIP-2930: [[fields, accessList], v, r, s] (nested structure)
       final accessListEncoded = accessList != null ? accessList!.serialize() : <List<dynamic>>[];
@@ -291,7 +293,9 @@ class CFXTransaction {
         data,
         accessListEncoded,
       ];
-      encoded = [fields, <int>[v!], r!, s!];
+      // v must be encoded correctly: 0 -> [], 1 -> [1], etc. (no leading zeros)
+      final vEncoded = v! == 0 ? <int>[] : <int>[v!];
+      encoded = [fields, vEncoded, r!, s!];
     } else {
       // EIP-1559: [[fields, accessList], v, r, s] (nested structure)
       final accessListEncoded = accessList != null ? accessList!.serialize() : <List<dynamic>>[];
@@ -308,7 +312,9 @@ class CFXTransaction {
         data,
         accessListEncoded,
       ];
-      encoded = [fields, <int>[v!], r!, s!];
+      // v must be encoded correctly: 0 -> [], 1 -> [1], etc. (no leading zeros)
+      final vEncoded = v! == 0 ? <int>[] : <int>[v!];
+      encoded = [fields, vEncoded, r!, s!];
     }
 
     final rlpEncoded = _rlpEncode(encoded);
