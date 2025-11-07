@@ -64,3 +64,6 @@ export 'src/exception/exception.dart';
 // Export CIP-23 structured data signing
 export 'src/cip23/cip23.dart';
 
+// Export utilities
+export 'src/utils/cfx_unit.dart';
+

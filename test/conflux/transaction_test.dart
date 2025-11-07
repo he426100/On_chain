@@ -730,5 +730,132 @@ void main() {
       expect(decoded.isSigned, isTrue);
     });
   });
+
+  group('Additional Transaction Tests from js-conflux-sdk', () {
+    // 来自 js-conflux-sdk/test/transaction.test.js 的测试
+    const testPrivateKey = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+    const networkId = 1;
+
+    test('Transaction with s starting with 0x00 (edge case)', () {
+      // 来自 transaction.test.js line 126-142
+      // 测试签名中 s 值以 0x00 开头的特殊情况
+      final privateKey = CFXPrivateKey(testPrivateKey);
+      
+      final to = CFXAddress.fromHex('0x0123456789012345678901234567890123456789', networkId);
+      
+      final builder = CFXTransactionBuilder.transfer(
+        from: privateKey.publicKey().toAddress(networkId),
+        to: to,
+        value: BigInt.zero,
+        chainId: BigInt.from(networkId),
+      );
+      
+      builder.setNonce(BigInt.from(127)); // 特殊 nonce 导致 s 以 0x00 开头
+      builder.setGasPrice(BigInt.one);
+      builder.setGas(BigInt.from(21000));
+      builder.setStorageLimit(BigInt.zero);
+      builder.setEpochHeight(BigInt.zero);
+      
+      final signedTx = builder.sign(privateKey);
+      
+      // 验证签名的 s 值
+      expect(signedTx.s, isNotNull);
+      final sHex = BytesUtils.toHexString(signedTx.s!, prefix: '0x');
+      
+      // 来自 js-conflux-sdk 的预期值
+      expect(
+        sHex,
+        equals('0x233f41b647de5846856106a8bc0fb67ba4dc3c184d328e565547928adedc8f3c'),
+      );
+      
+      // 验证序列化结果
+      final serialized = BytesUtils.toHexString(signedTx.serialize(), prefix: '0x');
+      expect(
+        serialized,
+        equals('0xf863df7f01825208940123456789012345678901234567890123456789808080018001a0bde07fe87c58cf83c50a4787c637a05a521d5f8372bd8acb207504e8af2daee4a0233f41b647de5846856106a8bc0fb67ba4dc3c184d328e565547928adedc8f3c'),
+      );
+    });
+
+    test('Decode transaction with null to address (contract deployment)', () {
+      // 来自 transaction.test.js line 144-159
+      final privateKey = CFXPrivateKey(testPrivateKey);
+      
+      final builder = CFXTransactionBuilder.deploy(
+        from: privateKey.publicKey().toAddress(networkId),
+        bytecode: [],
+        chainId: BigInt.from(networkId),
+      );
+      
+      builder.setNonce(BigInt.zero);
+      builder.setGasPrice(BigInt.one);
+      builder.setGas(BigInt.from(21000));
+      builder.setStorageLimit(BigInt.zero);
+      builder.setEpochHeight(BigInt.zero);
+      
+      final signedTx = builder.sign(privateKey);
+      final serialized = signedTx.serialize();
+      
+      // Decode and verify null to address
+      final decoded = CFXTransaction.fromRawTransaction(serialized);
+      expect(decoded.to, isNull);
+    });
+
+    test('Transaction with data field', () {
+      // 来自 transaction.test.js line 160-171
+      final privateKey = CFXPrivateKey(testPrivateKey);
+      final data = StringUtils.encode('Example data');
+      
+      final to = CFXAddress.fromHex('0x0123456789012345678901234567890123456789', networkId);
+      
+      final builder = CFXTransactionBuilder.transfer(
+        from: privateKey.publicKey().toAddress(networkId),
+        to: to,
+        value: BigInt.zero,
+        chainId: BigInt.from(networkId),
+      );
+      
+      builder.setNonce(BigInt.zero);
+      builder.setGasPrice(BigInt.one);
+      builder.setGas(BigInt.from(21000));
+      builder.setStorageLimit(BigInt.zero);
+      builder.setEpochHeight(BigInt.zero);
+      builder.setData(data);
+      
+      final signedTx = builder.sign(privateKey);
+      final serialized = signedTx.serialize();
+      
+      // Decode and verify data field
+      final decoded = CFXTransaction.fromRawTransaction(serialized);
+      expect(decoded.data, equals(data));
+    });
+
+    test('EIP-2930 transaction encode and decode', () {
+      // 来自 transaction.test.js line 173-181
+      const hex = '0x63667801f8a8f8636464649419578cf3c71eab48cf810c78b5175d5c9e6ef441646464648c48656c6c6f2c20576f726c64f838f79419578cf3c71eab48cf810c78b5175d5c9e6ef441e1a01234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef01a0e3e73f1ae5a109b01f5f64b97c7eae0c870da2c050969916d0a440ac2eef0ca3a04e8c4415db648707bd6d4c7708793b04f5404ff38e873fb78f1a6474e36a2579';
+      
+      final decoded = CFXTransaction.fromRawTransaction(hex);
+      
+      expect(decoded.type, equals(CFXTransactionType.eip2930));
+      expect(decoded.chainId, equals(BigInt.from(100)));
+      expect(decoded.nonce, equals(BigInt.from(100)));
+      expect(decoded.value, equals(BigInt.from(100)));
+      expect(decoded.accessList, isNotNull);
+    });
+
+    test('EIP-1559 transaction encode and decode', () {
+      // 来自 transaction.test.js line 183-193
+      const hex = '0x63667802f8a9f864646464649419578cf3c71eab48cf810c78b5175d5c9e6ef441646464648c48656c6c6f2c20576f726c64f838f79419578cf3c71eab48cf810c78b5175d5c9e6ef441e1a01234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef80a069a44af3ab58ea8be86d21262e900279adc674248a23df5771406545163c1383a0248424d9019fb6c0ecb59c0df3841623fada8fe829cf15e77b6d777accc7cfec';
+      
+      final decoded = CFXTransaction.fromRawTransaction(hex);
+      
+      expect(decoded.type, equals(CFXTransactionType.eip1559));
+      expect(decoded.chainId, equals(BigInt.from(100)));
+      expect(decoded.nonce, equals(BigInt.from(100)));
+      expect(decoded.value, equals(BigInt.from(100)));
+      expect(decoded.maxFeePerGas, equals(BigInt.from(100)));
+      expect(decoded.maxPriorityFeePerGas, equals(BigInt.from(100)));
+      expect(decoded.accessList, isNotNull);
+    });
+  });
 }
 

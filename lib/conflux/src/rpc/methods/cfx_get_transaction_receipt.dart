@@ -30,6 +30,10 @@ class CFXGetTransactionReceipt
 
   @override
   Map<String, dynamic>? onResonse(result) {
+    // RPC returns null for pending or non-existent transactions
+    if (result == null) {
+      return null;
+    }
     return Map<String, dynamic>.from(result);
   }
 }
