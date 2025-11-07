@@ -43,7 +43,7 @@ void main() {
     test('should convert string to BigInt', () {
       expect(BigInt.parse('0'), equals(BigInt.zero));
       expect(BigInt.parse('1'), equals(BigInt.one));
-      expect(BigInt.parse('16', radix: 16), equals(BigInt.from(16)));
+      expect(BigInt.parse('10', radix: 16), equals(BigInt.from(16)));
     });
 
     test('should convert number to BigInt', () {
