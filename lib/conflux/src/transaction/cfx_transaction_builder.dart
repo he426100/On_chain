@@ -209,12 +209,24 @@ class CFXTransactionBuilder {
     // Sign
     final signature = privateKey.sign(hash, hashMessage: false);
 
+    // Extract recovery ID from signature.v
+    // The ETHSignature.v contains the EIP-155 encoded value: v = recoveryId + 27 (or + chainId * 2 + 35)
+    // Conflux uses the raw recoveryId (0-3) as documented in js-conflux-sdk
+    int recoveryId;
+    if (signature.v >= 35) {
+      // EIP-155 signed: v = recoveryId + chainId * 2 + 35
+      recoveryId = signature.v - chainId.toInt() * 2 - 35;
+    } else {
+      // Legacy signed: v = recoveryId + 27
+      recoveryId = signature.v - 27;
+    }
+
     // Create signed transaction with signature bytes
     final rBytes = BigintUtils.toBytes(signature.r, length: 32);
     final sBytes = BigintUtils.toBytes(signature.s, length: 32);
 
     return unsignedTx.copyWith(
-      v: signature.v,
+      v: recoveryId,
       r: rBytes,
       s: sBytes,
     );
