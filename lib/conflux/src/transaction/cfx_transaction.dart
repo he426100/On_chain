@@ -460,7 +460,8 @@ class CFXTransaction {
 
     if (decodedList.length >= 4) {
       final vBytes = decodedList[1] as List<int>;
-      v = vBytes.isNotEmpty ? vBytes[0] : null;
+      // RLP: 空字节数组表示整数0，因此 [] -> 0, [v] -> v
+      v = vBytes.isNotEmpty ? vBytes[0] : 0;
       r = List<int>.from(decodedList[2]);
       s = List<int>.from(decodedList[3]);
     }
@@ -532,7 +533,8 @@ class CFXTransaction {
 
     if (decodedList.length >= 4) {
       final vBytes = decodedList[1] as List<int>;
-      v = vBytes.isNotEmpty ? vBytes[0] : null;
+      // RLP: 空字节数组表示整数0，因此 [] -> 0, [v] -> v
+      v = vBytes.isNotEmpty ? vBytes[0] : 0;
       r = List<int>.from(decodedList[2]);
       s = List<int>.from(decodedList[3]);
     }
@@ -606,7 +608,8 @@ class CFXTransaction {
 
     if (decodedList.length >= 4) {
       final vBytes = decodedList[1] as List<int>;
-      v = vBytes.isNotEmpty ? vBytes[0] : null;
+      // RLP: 空字节数组表示整数0，因此 [] -> 0, [v] -> v
+      v = vBytes.isNotEmpty ? vBytes[0] : 0;
       r = List<int>.from(decodedList[2]);
       s = List<int>.from(decodedList[3]);
     }
