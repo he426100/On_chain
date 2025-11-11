@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:on_chain/conflux/conflux.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
 
 void main() {
   group('CFXAddress Tests', () {

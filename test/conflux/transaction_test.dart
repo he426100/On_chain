@@ -800,24 +800,24 @@ void main() {
       expect(decoded.to, isNull);
     });
 
-    test('Transaction with data field', () {
-      // 来自 transaction.test.js line 160-171
-      final privateKey = CFXPrivateKey(testPrivateKey);
-      final data = StringUtils.encode('Example data');
+    // test('Transaction with data field', () {
+    //   // 来自 transaction.test.js line 160-171
+    //   final privateKey = CFXPrivateKey(testPrivateKey);
+    //   // final data = StringUtils.encode('Example data');
       
-      final to = CFXAddress.fromHex('0x0123456789012345678901234567890123456789', networkId);
+    //   final to = CFXAddress.fromHex('0x0123456789012345678901234567890123456789', networkId);
       
-      final builder = CFXTransactionBuilder.transfer(
-        from: privateKey.publicKey().toAddress(networkId),
-        to: to,
-        value: BigInt.zero,
-        chainId: BigInt.from(networkId),
-      );
+    //   final builder = CFXTransactionBuilder.transfer(
+    //     from: privateKey.publicKey().toAddress(networkId),
+    //     to: to,
+    //     value: BigInt.zero,
+    //     chainId: BigInt.from(networkId),
+    //   );
       
-      // Note: CFXTransactionBuilder.transfer() doesn't support data parameter.
-      // This functionality is covered by contract deployment tests.
-      // Skipping this test.
-    });
+    //   // Note: CFXTransactionBuilder.transfer() doesn't support data parameter.
+    //   // This functionality is covered by contract deployment tests.
+    //   // Skipping this test.
+    // });
 
     test('EIP-2930 transaction encode and decode', () {
       // 来自 transaction.test.js line 173-181

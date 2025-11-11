@@ -23,11 +23,6 @@ void main() {
       expect(BytesUtils.toHexString([1, 10, 255], prefix: '0x'), equals('0x010aff'));
     });
 
-    test('should convert bool to hex-like number', () {
-      expect(false ? 1 : 0, equals(0));
-      expect(true ? 1 : 0, equals(1));
-    });
-
     test('should handle hex string', () {
       expect(BytesUtils.toHexString(BytesUtils.fromHexString('0x1234'), prefix: '0x'), 
              equals('0x1234'));
@@ -83,11 +78,6 @@ void main() {
 
     test('should convert hex string to buffer', () {
       expect(BytesUtils.fromHexString('0x0a'), equals([10]));
-    });
-
-    test('should convert bool to buffer-like', () {
-      expect(false ? [1] : [0], equals([0]));
-      expect(true ? [1] : [0], equals([1]));
     });
   });
 

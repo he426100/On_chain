@@ -15,7 +15,7 @@ void main() {
     const testPrivateKey = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
     
     // 预期的测试地址（chainId=1, testnet）
-    const expectedAddress = 'cfxtest:aasm4c231py7j34fghntcfkdt2nm9xv1tu6jd3r1s7';
+    // const expectedAddress = 'cfxtest:aasm4c231py7j34fghntcfkdt2nm9xv1tu6jd3r1s7';
     
     group('Basic Transaction Signing and Serialization', () {
       // 来自 transaction.test.js 第7-16行
@@ -123,14 +123,14 @@ void main() {
       
       // 测试空 to 地址（合约部署）
       test('Should decode transaction with empty to address', () {
-        final privateKey = CFXPrivateKey(testPrivateKey);
+        // final privateKey = CFXPrivateKey(testPrivateKey);
         
-        final builder = CFXTransactionBuilder.contractCall(
-          from: privateKey.publicKey().toAddress(1),
-          contract: privateKey.publicKey().toAddress(1), // 不会使用
-          data: [],
-          chainId: BigInt.one,
-        );
+        // final builder = CFXTransactionBuilder.contractCall(
+        //   from: privateKey.publicKey().toAddress(1),
+        //   contract: privateKey.publicKey().toAddress(1), // 不会使用
+        //   data: [],
+        //   chainId: BigInt.one,
+        // );
         
         // 手动设置为null来创建合约部署交易
         final tx = CFXTransaction(

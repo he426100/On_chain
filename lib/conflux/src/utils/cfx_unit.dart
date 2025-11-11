@@ -1,5 +1,3 @@
-import 'package:blockchain_utils/blockchain_utils.dart';
-
 /// Represents a value in Drip (the smallest unit of CFX).
 /// 
 /// Conflux uses Drip as its base unit:
@@ -72,7 +70,7 @@ class CFXUnit {
         throw ArgumentError('not match "bigUInt"');
       }
       if (!cfx.isFinite) {
-        throw ArgumentError('Invalid number: ${cfx}');
+        throw ArgumentError('Invalid number: $cfx');
       }
       return _multiplyByPowerOf10(cfx, 18);
     }
@@ -112,7 +110,7 @@ class CFXUnit {
         throw ArgumentError('not match "bigUInt"');
       }
       if (!gdrip.isFinite) {
-        throw ArgumentError('Invalid number: ${gdrip}');
+        throw ArgumentError('Invalid number: $gdrip');
       }
       return _multiplyByPowerOf10(gdrip, 9);
     }
