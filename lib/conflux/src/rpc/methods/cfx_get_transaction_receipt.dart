@@ -16,7 +16,7 @@ import 'package:on_chain/conflux/src/rpc/core/core.dart';
 /// }
 /// ```
 class CFXGetTransactionReceipt
-    extends CFXRequest<Map<String, dynamic>?, Map<String, dynamic>> {
+    extends CFXRequest<Map<String, dynamic>?, Map<String, dynamic>?> {
   CFXGetTransactionReceipt({required this.transactionHash});
 
   /// The transaction hash.
