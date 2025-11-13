@@ -13,7 +13,7 @@ void main() async {
 
   /// Connect to the WebSocket service
   final wsocketService = await RPCWebSocketService.connect(
-      "wss://polygon-mumbai-bor.publicnode.com");
+      "wss://rpc-amoy.polygon.technology/");
 
   /// Create an Ethereum RPC instance
   final rpc = EthereumProvider(wsocketService);
@@ -60,7 +60,7 @@ void main() async {
       // Amount of Ether to be sent with the transaction
       value: BigInt.from(4000),
       // Ethereum chain ID
-      chainId: BigInt.from(80001));
+      chainId: BigInt.from(80002));
 
   /// Request and set access list for the transaction
   final accessList = await rpc
@@ -79,5 +79,5 @@ void main() async {
   /// Send and submit the transaction to the Ethereum network
   await tr.sendAndSubmitTransaction(rpc);
 
-  /// https://mumbai.polygonscan.com/tx/0x650d3af9a5d979282170f7221fd92215ea54560380d10d71505a9db4186d9cfd
+  /// https://amoy.polygonscan.com/tx/0x650d3af9a5d979282170f7221fd92215ea54560380d10d71505a9db4186d9cfd
 }

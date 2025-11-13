@@ -9,9 +9,9 @@ void main() async {
 // Parse the contract ABI from JSON using the abiTest data
   final contract = ContractABI.fromJson(abiTest);
 
-// Create an Ethereum RPC instance with a HTTP service on the Polygon Mumbai testnet
+// Create an Ethereum RPC instance with a HTTP service on the Polygon Amoy testnet
   final rpc = EthereumProvider(
-      RPCHttpService("https://polygon-mumbai-bor.publicnode.com"));
+      RPCHttpService("https://rpc-amoy.polygon.technology/"));
 
 // Make an RPC call to execute a method on the contract and get the result
   final call1 = await rpc.request(EthereumRequestFunctionCall(

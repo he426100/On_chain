@@ -25,7 +25,7 @@ void main() {
       domain: {
         "name": "Ether Mail",
         "version": "1",
-        "chainId": BigInt.from(80001),
+        "chainId": BigInt.from(80002),
         "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
       },
       message: {

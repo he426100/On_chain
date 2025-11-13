@@ -5,7 +5,7 @@ import 'package:on_chain/ethereum/ethereum.dart';
 void main() async {
   /// Connect to the WebSocket service
   final wsocketService = await RPCWebSocketService.connect(
-      "wss://polygon-mumbai-bor.publicnode.com");
+      "wss://rpc-amoy.polygon.technology/");
 
   /// Create an Ethereum RPC instance
   final rpc = EthereumProvider(wsocketService);
@@ -47,7 +47,7 @@ void main() async {
       value: ETHHelper.toWei("0.0000001"),
 
       /// chain ID
-      chainId: BigInt.from(80001));
+      chainId: BigInt.from(80002));
 
   /// Autofill the transaction details using the RPC service
   await tr.autoFill(rpc);
@@ -61,5 +61,5 @@ void main() async {
   /// Send and submit the transaction to the Ethereum network
   await tr.sendAndSubmitTransaction(rpc);
 
-  /// https://mumbai.polygonscan.com/tx/0x14fa41801dac0d2217f6eb051ca923011b578f0557d4588859a13a44419faf78
+  /// https://amoy.polygonscan.com/tx/0x14fa41801dac0d2217f6eb051ca923011b578f0557d4588859a13a44419faf78
 }
