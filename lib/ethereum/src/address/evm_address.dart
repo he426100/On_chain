@@ -27,6 +27,47 @@ class ETHAddress extends SolidityAddress {
     }
   }
 
+  /// Creates an [ETHAddress] instance by recovering from a signature and message.
+  ///
+  /// This implements the `personal_ecRecover` functionality as specified in Trust Wallet.
+  /// Reference: trust-web3-provider/packages/ethereum/MobileAdapter.ts:191-199
+  ///
+  /// Parameters:
+  /// - [signature]: The signature bytes (65 bytes with recovery id)
+  /// - [message]: The original message bytes (before personal sign prefix)
+  /// - [payloadLength]: Optional payload length for the personal sign prefix
+  ///
+  /// Returns an [ETHAddress] recovered from the signature, or throws if recovery fails.
+  factory ETHAddress.fromSignature(List<int> signature, List<int> message,
+      {int? payloadLength}) {
+    try {
+      // Use ETHVerifier.getPublicKey to recover the public key from signature
+      // This handles the personal sign message format internally:
+      // "\x19Ethereum Signed Message:\n" + len(message) + message
+      final publicKey = ETHVerifier.getPublicKey(message, signature,
+          payloadLength: payloadLength);
+
+      if (publicKey == null) {
+        throw ETHPluginException(
+            'Failed to recover public key from signature',
+            details: {
+              'signatureLength': signature.length,
+              'messageLength': message.length
+            });
+      }
+
+      // Convert public key to Ethereum address
+      return ETHAddress.fromPublicKey(publicKey.toBytes());
+    } catch (e) {
+      throw ETHPluginException('Failed to recover address from signature',
+          details: {
+            'error': e.toString(),
+            'signature': BytesUtils.toHexString(signature),
+            'message': BytesUtils.toHexString(message)
+          });
+    }
+  }
+
   /// Creates an [ETHAddress] instance from an Ethereum address string.
   ///
   /// Optionally, [skipChecksum] can be set to true to skip the address checksum validation.
