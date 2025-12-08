@@ -147,7 +147,21 @@ class EIP712Utils {
       throw SolidityAbiException(
           'EIP-712 type definition not found for "$type".');
     }
-    for (final Eip712TypeDetails field in types[type]!) {
+
+    // 🔄 兼容性修复：处理空的 EIP712Domain 类型定义
+    // MetaMask 参考：eth-sig-util/src/sign-typed-data.ts:502-506
+    //
+    // 当 types[type] 是空数组时（如自动补全的 EIP712Domain: []）：
+    // - 所有 domain 数据字段都是"额外"的（未在类型中定义）
+    // - 这对应 EIP-712 V3 行为（允许缺失字段）
+    // - V4 要求所有字段都存在，但空类型定义意味着没有必需字段
+    final typeFields = types[type]!;
+    if (typeFields.isEmpty) {
+      // 空类型定义，默认使用 V4（更宽松的版本）
+      return EIP712Version.v4;
+    }
+
+    for (final Eip712TypeDetails field in typeFields) {
       if (data[field.name] == null) return EIP712Version.v3;
     }
     return EIP712Version.v4;
@@ -163,18 +177,30 @@ class EIP712Utils {
       throw SolidityAbiException(
           'EIP-712 type definition not found for "$type".');
     }
-    for (final Eip712TypeDetails field in typedData.types[type]!) {
-      if (data[field.name] == null) {
-        if (typedData.version == EIP712Version.v3) continue;
-        throw SolidityAbiException(
-            'Invalid Eip712TypedData data. data mising for field ${field.name}',
-            details: {'data': data, 'field': field});
-      }
 
-      final dynamic value = data[field.name];
-      final encodedValue = encodeValue(typedData, field.type, value);
-      types.add(encodedValue.item1);
-      inputBytes.add(encodedValue.item2);
+    // 🔄 兼容性修复：处理空的类型定义（如 EIP712Domain: []）
+    // MetaMask 参考：eth-sig-util/src/sign-typed-data.ts:502-506
+    //
+    // 当类型定义为空数组时：
+    // - 不遍历字段，只编码 typeHash
+    // - 这对应只有 typeHash 没有字段数据的情况
+    // - 符合 EIP-712 标准：structHash = keccak256(typeHash ‖ encodeData(s))
+    //   其中 encodeData(s) 为空时，只剩 typeHash
+    final typeFields = typedData.types[type]!;
+    if (typeFields.isNotEmpty) {
+      for (final Eip712TypeDetails field in typeFields) {
+        if (data[field.name] == null) {
+          if (typedData.version == EIP712Version.v3) continue;
+          throw SolidityAbiException(
+              'Invalid Eip712TypedData data. data mising for field ${field.name}',
+              details: {'data': data, 'field': field});
+        }
+
+        final dynamic value = data[field.name];
+        final encodedValue = encodeValue(typedData, field.type, value);
+        types.add(encodedValue.item1);
+        inputBytes.add(encodedValue.item2);
+      }
     }
 
     return abiEncode(types, inputBytes);

@@ -120,6 +120,7 @@ class Eip712TypedData implements EIP712Base {
             values.map((e) => Eip712TypeDetails.fromJson(e)).toList();
         types[i.key] = eip712Types;
       }
+
       final String primaryType = json.as("primaryType",
           error: const SolidityAbiException("missing or invalid primaryType."));
       final Map<String, dynamic> domain = json.asMap("domain",
@@ -127,6 +128,49 @@ class Eip712TypedData implements EIP712Base {
       final Map<String, dynamic> message = json.asMap("message",
           error:
               const SolidityAbiException("missing or invalid message data."));
+
+      // 🔄 兼容性修复：自动补全缺失的 EIP712Domain 类型定义
+      // MetaMask 参考：eth-sig-util/src/sign-typed-data.ts:502-506
+      //
+      // 根据 EIP-712 标准和 MetaMask 实现：
+      // 1. EIP-712 标准允许 dApp 省略 EIP712Domain 类型定义
+      // 2. MetaMask 在 sanitizeData 中自动添加空的 EIP712Domain: []
+      // 3. 然后根据 domain 字段的实际内容来推导类型
+      //
+      // 实现逻辑：
+      // - 如果 types 中没有 EIP712Domain，根据 domain 字段自动生成
+      // - 按照 EIP-712 标准字段顺序：name, version, chainId, verifyingContract, salt
+      if (!types.containsKey(EIP712Utils.domainKeyName)) {
+        final List<Eip712TypeDetails> domainFields = [];
+
+        // EIP-712 标准字段顺序
+        const standardOrder = [
+          'name',
+          'version',
+          'chainId',
+          'verifyingContract',
+          'salt'
+        ];
+        const fieldTypes = {
+          'name': 'string',
+          'version': 'string',
+          'chainId': 'uint256',
+          'verifyingContract': 'address',
+          'salt': 'bytes32'
+        };
+
+        for (final fieldName in standardOrder) {
+          if (domain.containsKey(fieldName) && domain[fieldName] != null) {
+            domainFields.add(Eip712TypeDetails(
+              name: fieldName,
+              type: fieldTypes[fieldName]!,
+            ));
+          }
+        }
+
+        types[EIP712Utils.domainKeyName] = domainFields;
+      }
+
       if (version == null) {
         version = EIP712Utils._detectVersion(
             types, EIP712Utils.domainKeyName, domain);
