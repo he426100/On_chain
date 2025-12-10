@@ -35,20 +35,15 @@ void main() {
 
         final typedData = Eip712TypedData.fromJson(json);
 
-        // Verify EIP712Domain was auto-generated
+        // Verify EIP712Domain was auto-generated as empty array
+        // 参考：eth-sig-util/src/sign-typed-data.ts:332
+        // sanitizedData.types = Object.assign({ EIP712Domain: [] }, sanitizedData.types);
         expect(typedData.types.containsKey('EIP712Domain'), isTrue);
         final domainFields = typedData.types['EIP712Domain']!;
 
-        // Verify fields are in correct order and types
-        expect(domainFields.length, 4);
-        expect(domainFields[0].name, 'name');
-        expect(domainFields[0].type, 'string');
-        expect(domainFields[1].name, 'version');
-        expect(domainFields[1].type, 'string');
-        expect(domainFields[2].name, 'chainId');
-        expect(domainFields[2].type, 'uint256');
-        expect(domainFields[3].name, 'verifyingContract');
-        expect(domainFields[3].type, 'address');
+        // eth-sig-util 补全的是空数组，不是完整定义
+        expect(domainFields.length, 0,
+            reason: 'EIP712Domain 应该是空数组（与 eth-sig-util 一致）');
 
         // Verify hash can be computed without error
         final hash = typedData.encodeHex();
@@ -128,11 +123,10 @@ void main() {
 
         final typedData = Eip712TypedData.fromJson(json);
 
-        // Verify only present fields are in EIP712Domain
+        // Verify EIP712Domain is auto-completed as empty array
         final domainFields = typedData.types['EIP712Domain']!;
-        expect(domainFields.length, 2);
-        expect(domainFields[0].name, 'name');
-        expect(domainFields[1].name, 'chainId');
+        expect(domainFields.length, 0,
+            reason: 'EIP712Domain 应该是空数组（与 eth-sig-util 一致）');
 
         // Verify hash can be computed
         final hash = typedData.encodeHex();
@@ -162,11 +156,10 @@ void main() {
 
         final typedData = Eip712TypedData.fromJson(json);
 
-        // Verify all 5 standard fields are present
+        // Verify EIP712Domain is auto-completed as empty array
         final domainFields = typedData.types['EIP712Domain']!;
-        expect(domainFields.length, 5);
-        expect(domainFields[4].name, 'salt');
-        expect(domainFields[4].type, 'bytes32');
+        expect(domainFields.length, 0,
+            reason: 'EIP712Domain 应该是空数组（与 eth-sig-util 一致）');
 
         // Verify hash can be computed
         final hash = typedData.encodeHex();

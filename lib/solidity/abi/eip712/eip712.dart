@@ -130,45 +130,22 @@ class Eip712TypedData implements EIP712Base {
               const SolidityAbiException("missing or invalid message data."));
 
       // 🔄 兼容性修复：自动补全缺失的 EIP712Domain 类型定义
-      // MetaMask 参考：eth-sig-util/src/sign-typed-data.ts:502-506
+      // MetaMask 参考：eth-sig-util/src/sign-typed-data.ts:332
       //
-      // 根据 EIP-712 标准和 MetaMask 实现：
-      // 1. EIP-712 标准允许 dApp 省略 EIP712Domain 类型定义
-      // 2. MetaMask 在 sanitizeData 中自动添加空的 EIP712Domain: []
-      // 3. 然后根据 domain 字段的实际内容来推导类型
+      // eth-sig-util 实现（第 332 行）：
+      //   sanitizedData.types = Object.assign({ EIP712Domain: [] }, sanitizedData.types);
       //
-      // 实现逻辑：
-      // - 如果 types 中没有 EIP712Domain，根据 domain 字段自动生成
-      // - 按照 EIP-712 标准字段顺序：name, version, chainId, verifyingContract, salt
+      // 关键发现：
+      // - eth-sig-util 补全的是**空数组** EIP712Domain: []
+      // - 不是根据 domain 字段生成完整定义
+      // - 空数组意味着 encodeStruct 时只编码 typeHash，不编码任何字段数据
+      //
+      // 这与 EIP-712 标准一致：
+      // - 当类型定义为空数组时，structHash = keccak256(typeHash)
+      // - 不包含任何字段的编码数据
       if (!types.containsKey(EIP712Utils.domainKeyName)) {
-        final List<Eip712TypeDetails> domainFields = [];
-
-        // EIP-712 标准字段顺序
-        const standardOrder = [
-          'name',
-          'version',
-          'chainId',
-          'verifyingContract',
-          'salt'
-        ];
-        const fieldTypes = {
-          'name': 'string',
-          'version': 'string',
-          'chainId': 'uint256',
-          'verifyingContract': 'address',
-          'salt': 'bytes32'
-        };
-
-        for (final fieldName in standardOrder) {
-          if (domain.containsKey(fieldName) && domain[fieldName] != null) {
-            domainFields.add(Eip712TypeDetails(
-              name: fieldName,
-              type: fieldTypes[fieldName]!,
-            ));
-          }
-        }
-
-        types[EIP712Utils.domainKeyName] = domainFields;
+        // 补全空数组，与 eth-sig-util 完全一致
+        types[EIP712Utils.domainKeyName] = [];
       }
 
       if (version == null) {
