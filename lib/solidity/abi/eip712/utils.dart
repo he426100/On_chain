@@ -30,7 +30,10 @@ class EIP712Utils {
           'Invalid data provided for bytes codec.');
     }
     if (value is List<int>) return BytesUtils.toBytes(value);
-    return StringUtils.toBytes(value);
+    // 🔧 修复：bytes 类型的字符串应该解析为十六进制，而不是 UTF-8 编码
+    // 参考：eth-sig-util 对 bytes 类型的处理
+    // 例如："0x" -> [] (空字节), "0x1234" -> [0x12, 0x34]
+    return BytesUtils.fromHexString(value);
   }
 
   /// Ensures correct representation of values based on the specified type.
@@ -326,9 +329,22 @@ class EIP712Utils {
   /// Generates the method signature hash for a given EIP-712 typed data and type.
   /// The method signature includes all dependencies and their corresponding types and names.
   static List<int> getMethodSigature(Eip712TypedData typedData, String type) {
+    // 🔧 修复：依赖排序
+    // 参考：eth-sig-util/src/sign-typed-data.ts:401
+    // 规则：primaryType 在首位，其他依赖按字母顺序排序
     final List<String> dependencies =
         List.from(_getDependencies(typedData, type));
-    final encode = dependencies
+
+    // 将 primaryType 放在第一位
+    final String primaryType = dependencies.first;
+
+    // 其他依赖按字母顺序排序
+    final List<String> sortedDeps = dependencies.sublist(1)..sort();
+
+    // 组合：[primaryType, ...sortedDeps]
+    final List<String> orderedDeps = [primaryType, ...sortedDeps];
+
+    final encode = orderedDeps
         .map((dependency) =>
             '$dependency(${typedData.types[dependency]!.map((t) => '${t.type} ${t.name}').join(',')})')
         .join('');
