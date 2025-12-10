@@ -281,8 +281,13 @@ class EIP712Utils {
       return Tuple(bytes32TypeName, structHash(typedData, type, data));
     }
     if (type == 'string' || type == 'bytes') {
-      final List<int> bytesData =
-          type == 'string' ? StringUtils.encode(data) : data;
+      // 🔧 修复：bytes 类型需要先转换为 List<int>
+      // 参考：eth-sig-util/src/sign-typed-data.ts:277-285
+      // 当 type 是 'bytes' 时，data 可能是字符串（如 '0x'）或 List<int>
+      // 需要调用 _ensureBytes 来处理所有情况
+      final List<int> bytesData = type == 'string'
+          ? StringUtils.encode(data)
+          : _ensureBytes(type, data);
       return Tuple(bytes32TypeName, QuickCrypto.keccack256Hash(bytesData));
     }
     return Tuple(type, data);
